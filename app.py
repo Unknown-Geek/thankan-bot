@@ -69,190 +69,197 @@ CRITICAL RULES:
 - Use Malayalam curse words creatively but playfully
 - Keep responses clean of any meta-commentary"""
 
-SYSTEM_PROMPT_DEFAULT = os.environ.get(
-    "THANI_SYSTEM_PROMPT",
-    THANI_SYSTEM_PROMPT,
-)
-
-# You can tweak these generation defaults via the UI sliders.
-GEN_DEFAULTS = dict(
-    max_new_tokens=512,
-    temperature=0.7,
-    top_p=0.95,
-    top_k=50,
-    repetition_penalty=1.05,
-)
-
-_tokenizer: AutoTokenizer | None = None
-_model: AutoModelForCausalLM | None = None
+# Global variables for model and tokenizer
+_model = None
+_tokenizer = None
 
 
 def load_model():
-    global _tokenizer, _model
+    """Load model with memory optimization for HF Spaces"""
+    global _model, _tokenizer
+    
     if _model is not None:
         return _tokenizer, _model
-
-    auth_token = os.environ.get("HF_TOKEN")
     
-    print(f"Loading model {MODEL_ID} with torch_dtype='auto' ...")
-    t0 = time.time()
+    print(f"🔥 Loading {MODEL_ID} with optimizations...")
+    start_time = time.time()
     
-    # Load the tokenizer and the model for Qwen thinking model
-    _tokenizer = AutoTokenizer.from_pretrained(MODEL_ID, token=auth_token)
-    _model = AutoModelForCausalLM.from_pretrained(
-        MODEL_ID,
-        torch_dtype="auto",
-        device_map="auto",
-        token=auth_token
-    )
+    # Load tokenizer
+    _tokenizer = AutoTokenizer.from_pretrained(MODEL_ID, trust_remote_code=True)
     
-    load_s = time.time() - t0
-    print(f"Model loaded in {load_s:.1f}s")
+    # Configure quantization for memory efficiency
+    if USE_QUANTIZATION and torch.cuda.is_available():
+        quantization_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_compute_dtype=torch.float16,
+            bnb_4bit_use_double_quant=True,
+            bnb_4bit_quant_type="nf4"
+        )
+        model_kwargs = {
+            "quantization_config": quantization_config,
+            "device_map": "auto",
+            "trust_remote_code": True,
+            "torch_dtype": torch.float16,
+        }
+    else:
+        model_kwargs = {
+            "device_map": "auto" if torch.cuda.is_available() else "cpu",
+            "trust_remote_code": True,
+            "torch_dtype": torch.float16 if torch.cuda.is_available() else torch.float32,
+        }
+    
+    # Load model
+    _model = AutoModelForCausalLM.from_pretrained(MODEL_ID, **model_kwargs)
+    
+    load_time = time.time() - start_time
+    print(f"✅ Model loaded in {load_time:.1f}s")
+    
+    # Clear cache
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+    gc.collect()
+    
     return _tokenizer, _model
 
 
-def generate_thani_response(user_message: str, history: list[tuple[str, str]], system_prompt: str):
-    """Generate response using Qwen thinking model with Thani's personality."""
-    tokenizer, model = load_model()
-    
-    # Convert history to messages list
-    messages = []
-    
-    # Add system prompt
-    sys_prompt = system_prompt.strip() if system_prompt.strip() else SYSTEM_PROMPT_DEFAULT
-    messages.append({"role": "system", "content": sys_prompt})
-    
-    # Add conversation history
-    for u, a in history:
-        if u:
-            messages.append({"role": "user", "content": u})
-        if a:
-            messages.append({"role": "assistant", "content": a})
-    
-    # Add current user message
-    messages.append({"role": "user", "content": user_message})
-    
-    # Apply chat template
-    text = tokenizer.apply_chat_template(
-        messages,
-        tokenize=False,
-        add_generation_prompt=True,
-    )
-    
-    # Tokenize input
-    model_inputs = tokenizer([text], return_tensors="pt").to(model.device)
+def generate_thani_response(message: str, history: list, max_tokens: int = 512):
+    """Generate Thani's response using Qwen thinking model"""
+    try:
+        tokenizer, model = load_model()
+        
+        # Build conversation history
+        messages = [{"role": "system", "content": THANI_SYSTEM_PROMPT}]
+        
+        # Add history
+        for user_msg, assistant_msg in history:
+            if user_msg:
+                messages.append({"role": "user", "content": user_msg})
+            if assistant_msg:
+                messages.append({"role": "assistant", "content": assistant_msg})
+        
+        # Add current message
+        messages.append({"role": "user", "content": message})
+        
+        # Apply chat template
+        text = tokenizer.apply_chat_template(
+            messages,
+            tokenize=False,
+            add_generation_prompt=True,
+        )
+        
+        # Tokenize
+        inputs = tokenizer([text], return_tensors="pt")
+        if torch.cuda.is_available():
+            inputs = {k: v.to(model.device) for k, v in inputs.items()}
+        
+        # Generate with optimized settings for HF Spaces
+        with torch.no_grad():
+            outputs = model.generate(
+                **inputs,
+                max_new_tokens=min(max_tokens, 1024),  # Limit tokens for performance
+                temperature=0.8,
+                top_p=0.9,
+                do_sample=True,
+                pad_token_id=tokenizer.eos_token_id,
+                eos_token_id=tokenizer.eos_token_id,
+            )
+        
+        # Decode response
+        response_ids = outputs[0][len(inputs['input_ids'][0]):]
+        
+        # Parse thinking content (find </think> tag - token 151668)
+        response_ids_list = response_ids.tolist()
+        try:
+            # Find the index of </think> token
+            think_end_idx = len(response_ids_list) - response_ids_list[::-1].index(151668)
+        except ValueError:
+            think_end_idx = 0
+        
+        # Extract final content (after thinking)
+        final_response_ids = response_ids_list[think_end_idx:]
+        response = tokenizer.decode(final_response_ids, skip_special_tokens=True).strip()
+        
+        # Clean up memory
+        del outputs, inputs
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+        
+        return response if response else "Enthuva myre? Onnum parayan illa!"
+        
+    except Exception as e:
+        print(f"Error generating response: {e}")
+        return f"Eda thayoli... error aanu: {str(e)}"
+
+
+def chat_interface(message, history, max_tokens):
+    """Chat interface for Gradio"""
+    if not message.strip():
+        return history, ""
     
     # Generate response
-    generated_ids = model.generate(
-        **model_inputs,
-        max_new_tokens=32768,
-        do_sample=True,
-        temperature=0.8,
-        top_p=0.9
-    )
+    response = generate_thani_response(message, history, max_tokens)
     
-    # Extract output tokens
-    output_ids = generated_ids[0][len(model_inputs.input_ids[0]):].tolist()
+    # Update history
+    history.append([message, response])
     
-    # Parse thinking content (find </think> tag - token 151668)
-    try:
-        # Find the index of </think> token
-        index = len(output_ids) - output_ids[::-1].index(151668)
-    except ValueError:
-        # If no thinking tag found, use all content
-        index = 0
-    
-    # Extract thinking and final content
-    thinking_content = tokenizer.decode(output_ids[:index], skip_special_tokens=True).strip("\n")
-    content = tokenizer.decode(output_ids[index:], skip_special_tokens=True).strip("\n")
-    
-    # For debugging - you can uncomment this to see thinking process
-    # print("Thinking content:", thinking_content)
-    
-    return content
+    return history, ""
 
 
-def stream_chat(user_message: str, history: list[tuple[str, str]],
-                max_new_tokens: int, temperature: float, top_p: float, top_k: int,
-                repetition_penalty: float, system_prompt: str):
-    """Gradio generator function for streaming responses."""
-    
-    # Generate the full response using Qwen thinking model
-    response = generate_thani_response(user_message, history, system_prompt)
-    
-    # Stream the response character by character for better UX
-    partial = ""
-    for char in response:
-        partial += char
-        yield partial
-        time.sleep(0.02)  # Small delay for streaming effect
-
-
-def chat_fn(user_message, history, max_new_tokens, temperature, top_p, top_k, repetition_penalty, system_prompt):
-    # Gradio ChatInterface expects either a string or generator.
-    return stream_chat(user_message, history, max_new_tokens, temperature, top_p, top_k, repetition_penalty, system_prompt)
-
-
-def build_interface():
-    with gr.Blocks(title="Thani Thankan Chat", theme=gr.themes.Monochrome()) as demo:
-        gr.Markdown("## 🔥 Thani Thankan - The Rough Alter Ego\n*Powered by Qwen3-4B-Thinking-2507*\n\n**Warning:** This bot uses aggressive Malayalam slang and can be insulting while being helpful!")
+# Create Gradio interface optimized for HF Spaces
+def create_interface():
+    with gr.Blocks(
+        title="🔥 Thani Thankan - The Rough Alter Ego",
+        theme=gr.themes.Monochrome(),
+        css="""
+        .gradio-container {max-width: 1200px !important}
+        .chat-container {height: 600px !important}
+        """
+    ) as demo:
+        
+        gr.Markdown("""
+        # 🔥 Thani Thankan - The Rough Alter Ego
+        ### *Powered by Qwen3-4B-Thinking-2507*
+        
+        **Warning:** This bot uses aggressive Malayalam slang and can be insulting while being helpful!
+        
+        **Example prompts:**
+        - "Who are you?"
+        - "Help me with programming" 
+        - "I'm feeling lazy, motivate me"
+        """)
         
         with gr.Row():
-            with gr.Column(scale=3):
-                chat = gr.Chatbot(
-                    height=500, 
-                    type="tuple",
-                    avatar_images=("👤", "😈"),
-                    bubble_full_width=False
-                )
-                msg = gr.Textbox(
-                    label="Your message", 
-                    placeholder="Enthuva myre? Ask something...", 
-                    lines=3
-                )
-                with gr.Row():
-                    submit = gr.Button("Send", variant="primary")
-                    clear = gr.Button("Clear", variant="secondary")
-                    
-            with gr.Column(scale=1):
-                gr.Markdown("### 🎭 Personality Settings")
-                system_prompt = gr.Textbox(
-                    label="System Prompt (Thani's Personality)", 
-                    value=SYSTEM_PROMPT_DEFAULT, 
-                    lines=8,
-                    max_lines=15
+            with gr.Column(scale=4):
+                chatbot = gr.Chatbot(
+                    value=[],
+                    elem_id="chatbot",
+                    height=500,
+                    avatar_images=["👤", "😈"],
+                    bubble_full_width=False,
+                    show_copy_button=True
                 )
                 
-                gr.Markdown("### ⚙️ Generation Settings")
-                max_new_tokens = gr.Slider(
-                    32, 1024, 
-                    value=GEN_DEFAULTS["max_new_tokens"], 
-                    step=8, 
-                    label="Max New Tokens"
-                )
-                temperature = gr.Slider(
-                    0.1, 1.5, 
-                    value=GEN_DEFAULTS["temperature"], 
-                    step=0.05, 
-                    label="Temperature"
-                )
-                top_p = gr.Slider(
-                    0.1, 1.0, 
-                    value=GEN_DEFAULTS["top_p"], 
-                    step=0.01, 
-                    label="Top-p"
-                )
-                top_k = gr.Slider(
-                    0, 200, 
-                    value=GEN_DEFAULTS["top_k"], 
-                    step=5, 
-                    label="Top-k"
-                )
-                repetition_penalty = gr.Slider(
-                    0.9, 2.0, 
-                    value=GEN_DEFAULTS["repetition_penalty"], 
-                    step=0.01, 
-                    label="Repetition Penalty"
+                with gr.Row():
+                    msg = gr.Textbox(
+                        placeholder="Enthuva myre? Ask something...",
+                        show_label=False,
+                        scale=4,
+                        container=False
+                    )
+                    send_btn = gr.Button("Send 🔥", scale=1, variant="primary")
+                
+                with gr.Row():
+                    clear_btn = gr.Button("Clear Chat", variant="secondary")
+                    
+            with gr.Column(scale=1):
+                gr.Markdown("### ⚙️ Settings")
+                max_tokens = gr.Slider(
+                    minimum=50,
+                    maximum=1024,
+                    value=512,
+                    step=50,
+                    label="Max Tokens",
+                    info="Limit response length for performance"
                 )
                 
                 gr.Markdown("### 💡 Quick Prompts")
@@ -260,52 +267,52 @@ def build_interface():
                     gr.Button("Who are you?", size="sm").click(
                         lambda: "Who are you?", None, msg
                     )
-                    gr.Button("Help me with coding", size="sm").click(
+                    gr.Button("Help with coding", size="sm").click(
                         lambda: "I need help with Python programming", None, msg
                     )
                     gr.Button("Motivate me", size="sm").click(
                         lambda: "I'm feeling lazy today, motivate me", None, msg
                     )
+                    gr.Button("Tech advice", size="sm").click(
+                        lambda: "What's the best way to learn machine learning?", None, msg
+                    )
         
-        # Events
-        def user_submit(user_message, chat_history):
-            chat_history = chat_history + [(user_message, None)]
-            return "", chat_history
-
-        def bot_response(chat_history, max_new_tokens, temperature, top_p, top_k, repetition_penalty, system_prompt):
-            user_message = chat_history[-1][0]
-            generator = chat_fn(user_message, chat_history[:-1], max_new_tokens, temperature, top_p, top_k, repetition_penalty, system_prompt)
-            partial = ""
-            for partial in generator:
-                chat_history[-1] = (user_message, partial)
-                yield chat_history
-
-        submit.click(user_submit, [msg, chat], [msg, chat])\
-              .then(bot_response,
-                    [chat, max_new_tokens, temperature, top_p, top_k, repetition_penalty, system_prompt],
-                    [chat])
-        msg.submit(user_submit, [msg, chat], [msg, chat])\
-           .then(bot_response,
-                 [chat, max_new_tokens, temperature, top_p, top_k, repetition_penalty, system_prompt],
-                 [chat])
-        clear.click(lambda: None, None, chat, queue=False)
+        # Event handlers
+        def respond(message, history, max_tokens):
+            if not message.strip():
+                return history, ""
+            
+            response = generate_thani_response(message, history, max_tokens)
+            history.append([message, response])
+            return history, ""
+        
+        # Submit events
+        msg.submit(respond, [msg, chatbot, max_tokens], [chatbot, msg])
+        send_btn.click(respond, [msg, chatbot, max_tokens], [chatbot, msg])
+        clear_btn.click(lambda: [], None, chatbot)
+        
+        # API endpoint for external calls
+        demo.queue(max_size=20)  # Limit queue for stability
+        
     return demo
 
 
-def main():
-    print("🔥 Starting Thani Thankan Chat App...")
-    print("Loading model...")
-    load_model()  # Warm early loading
-    print("Model loaded successfully!")
-    
-    demo = build_interface()
-    print("Launching app on http://localhost:7860")
-    demo.queue(max_size=32).launch(
-        server_name="0.0.0.0", 
-        server_port=int(os.environ.get("PORT", 7860)),
-        show_error=True
-    )
-
-
+# For HF Spaces deployment
 if __name__ == "__main__":
-    main()
+    print("� Starting Thani Thankan on Hugging Face Spaces...")
+    
+    # Pre-load model for faster responses
+    try:
+        load_model()
+        print("✅ Model loaded successfully!")
+    except Exception as e:
+        print(f"❌ Error loading model: {e}")
+    
+    # Launch interface
+    demo = create_interface()
+    demo.launch(
+        share=False,  # Set to False for HF Spaces
+        show_error=True,
+        server_name="0.0.0.0",
+        server_port=7860
+    )

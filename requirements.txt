@@ -1,7 +1,5 @@
-transformers>=4.42.0
-accelerate>=0.31.0
-torch --extra-index-url https://download.pytorch.org/whl/cpu
-safetensors
-gradio>=4.38.0
-bitsandbytes; platform_system != 'Windows'  # optional quantization (not yet stable on Windows CPU)
-python-dotenv>=1.0.0
+transformers>=4.40.0
+accelerate>=0.28.0
+torch>=2.0.0
+bitsandbytes>=0.41.0
+gradio>=4.0.0
