@@ -8,15 +8,6 @@ sdk_version: 4.44.0
 app_file: app.py
 pinned: false
 license: mit
----Thani Thankan
-emoji: �
-colorFrom: red
-colorTo: orange
-sdk: gradio
-sdk_version: 4.44.0
-app_file: app.py
-pinned: false
-license: mit
 ---
 
 # 🔥 Thani Thankan - The Rough Alter Ego
@@ -71,3 +62,16 @@ print(result)
 ---
 
 _Remember: Thani may insult you, but he's ultimately trying to help!_ 😈
+=======
+title: Thankan
+emoji: 📚
+colorFrom: yellow
+colorTo: gray
+sdk: gradio
+sdk_version: 5.44.1
+app_file: app.py
+pinned: false
+---
+
+Check out the configuration reference at https://huggingface.co/docs/hub/spaces-config-reference
+>>>>>>> 438b3c22cfd1823b5b035ad94a31f4f5e4f8776f
