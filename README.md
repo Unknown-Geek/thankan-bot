@@ -17,7 +17,7 @@ license: mit
 ## Features
 
 - **Aggressive but Helpful**: Gets the job done while insulting you in creative Malayalam
-- **Meta Llama-3.2**: Powered by Meta's Llama-3.2-1B-Instruct model
+- **Microsoft DialoGPT**: Powered by Microsoft's DialoGPT-Medium conversational model
 - **API Ready**: Optimized for Gradio API calls
 - **Memory Efficient**: Uses 4-bit quantization for 16GB RAM environments
 
@@ -37,7 +37,7 @@ This bot uses aggressive Malayalam slang and can be insulting while being helpfu
 
 ## Technical Details
 
-- **Model**: meta-llama/Llama-3.2-1B-Instruct
+- **Model**: microsoft/DialoGPT-medium
 - **Optimization**: 4-bit quantization for memory efficiency
 - **Platform**: Optimized for Hugging Face Spaces (2 vCPU, 16GB RAM)
 - **Framework**: Gradio for easy API integration

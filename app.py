@@ -15,7 +15,7 @@ from transformers import (
 )
 
 # Optimize for HF Spaces
-MODEL_ID = "meta-llama/Llama-3.2-1B-Instruct"
+MODEL_ID = "microsoft/DialoGPT-medium"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 USE_QUANTIZATION = True  # Enable 4-bit quantization for memory efficiency
 
@@ -128,57 +128,57 @@ def load_model():
 
 
 def generate_thani_response(message: str, history: list, max_tokens: int = 512):
-    """Generate Thani's response using Llama-3.2-1B-Instruct model"""
+    """Generate Thani's response using DialoGPT-medium model"""
     try:
         tokenizer, model = load_model()
         
-        # Build conversation history using Llama's chat template format
-        messages = [
-            {"role": "system", "content": THANI_SYSTEM_PROMPT}
-        ]
+        # Build conversation history with Thani's personality injected
+        conversation_history = f"{THANI_SYSTEM_PROMPT}\n\n"
         
-        # Add history
-        for user_msg, assistant_msg in history:
+        # Add previous conversation context
+        for user_msg, assistant_msg in history[-3:]:  # Keep last 3 exchanges for context
             if user_msg:
-                messages.append({"role": "user", "content": user_msg})
+                conversation_history += f"User: {user_msg}\n"
             if assistant_msg:
-                messages.append({"role": "assistant", "content": assistant_msg})
+                conversation_history += f"Thani: {assistant_msg}\n"
         
-        # Add current message
-        messages.append({"role": "user", "content": message})
+        # Add current message with personality prompt
+        conversation_history += f"User: {message}\nThani:"
         
-        # Apply chat template
-        inputs = tokenizer.apply_chat_template(
-            messages,
-            add_generation_prompt=True,
-            tokenize=True,
-            return_dict=True,
-            return_tensors="pt",
+        # Tokenize input
+        inputs = tokenizer.encode(
+            conversation_history, 
+            return_tensors="pt", 
+            truncation=True, 
+            max_length=1024
         )
         
         if torch.cuda.is_available():
-            inputs = {k: v.to(model.device) for k, v in inputs.items()}
+            inputs = inputs.to(model.device)
         
-        # Generate with optimized settings for HF Spaces
+        # Generate with DialoGPT optimized settings
         with torch.no_grad():
             outputs = model.generate(
-                **inputs,
-                max_new_tokens=min(max_tokens, 512),  # Limit tokens for performance
+                inputs,
+                max_new_tokens=min(max_tokens, 256),  # DialoGPT works better with shorter responses
                 temperature=0.8,
                 top_p=0.9,
                 top_k=50,
                 do_sample=True,
                 pad_token_id=tokenizer.eos_token_id,
                 eos_token_id=tokenizer.eos_token_id,
-                repetition_penalty=1.1,
+                repetition_penalty=1.2,
+                no_repeat_ngram_size=3,
             )
         
         # Decode response (extract only the new tokens)
-        response_ids = outputs[0][len(inputs['input_ids'][0]):]
+        response_ids = outputs[0][len(inputs[0]):]
         response = tokenizer.decode(response_ids, skip_special_tokens=True).strip()
         
-        # Clean up response
-        response = response.replace("<|eot_id|>", "").strip()
+        # Clean up response and remove any leftover prompt text
+        response = response.replace("Thani:", "").strip()
+        if "User:" in response:
+            response = response.split("User:")[0].strip()
         
         # Clean up memory
         del outputs, inputs
@@ -219,7 +219,7 @@ def create_interface():
         
         gr.Markdown("""
         # 🔥 Thani Thankan - The Rough Alter Ego
-        ### *Powered by Meta Llama-3.2-1B-Instruct 🦙*
+        ### *Powered by Microsoft DialoGPT-Medium �*
         
         **Warning:** This bot uses aggressive Malayalam slang and can be insulting while being helpful!
         
