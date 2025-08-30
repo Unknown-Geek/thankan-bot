@@ -214,30 +214,45 @@ def generate_thani_response(message: str, history: list, max_tokens: int = 512):
             )
             
         except Exception as template_error:
-            print(f"Gemma-3 template failed, trying standard format: {template_error}")
-            # Fallback to standard chat template for Gemma-2
-            messages = [
-                {"role": "system", "content": THANI_SYSTEM_PROMPT}
-            ]
+            print(f"Gemma-3 template failed: {template_error}")
+            print("Trying standard Gemma-2 format without system role...")
             
-            # Add history
-            for user_msg, assistant_msg in history:
-                if user_msg:
-                    messages.append({"role": "user", "content": user_msg})
-                if assistant_msg:
-                    messages.append({"role": "assistant", "content": assistant_msg})
+            # Fallback: No system role, inject personality into first user message
+            messages = []
             
-            # Add current message
-            messages.append({"role": "user", "content": message})
+            # Inject system prompt into the first user message
+            first_user_message = f"{THANI_SYSTEM_PROMPT}\n\nUser: {message}\nRespond as Thani Thankan:"
+            
+            # Add history if exists
+            if history:
+                conversation_text = ""
+                for user_msg, assistant_msg in history:
+                    if user_msg:
+                        conversation_text += f"User: {user_msg}\n"
+                    if assistant_msg:
+                        conversation_text += f"Thani: {assistant_msg}\n"
+                
+                # Combine history with current message
+                first_user_message = f"{THANI_SYSTEM_PROMPT}\n\nPrevious conversation:\n{conversation_text}\nUser: {message}\nRespond as Thani Thankan:"
+                
+                messages = [{"role": "user", "content": first_user_message}]
+            else:
+                messages = [{"role": "user", "content": first_user_message}]
             
             # Apply standard chat template
-            inputs = tokenizer.apply_chat_template(
-                messages,
-                add_generation_prompt=True,
-                tokenize=True,
-                return_dict=True,
-                return_tensors="pt",
-            )
+            try:
+                inputs = tokenizer.apply_chat_template(
+                    messages,
+                    add_generation_prompt=True,
+                    tokenize=True,
+                    return_dict=True,
+                    return_tensors="pt",
+                )
+            except Exception as fallback_error:
+                print(f"Standard template also failed: {fallback_error}")
+                # Final fallback: manual prompt construction
+                prompt_text = first_user_message
+                inputs = tokenizer(prompt_text, return_tensors="pt", truncation=True, max_length=2048)
         
         if torch.cuda.is_available():
             inputs = {k: v.to(model.device) for k, v in inputs.items()}
@@ -262,6 +277,10 @@ def generate_thani_response(message: str, history: list, max_tokens: int = 512):
         
         # Clean up response
         response = response.replace("<end_of_turn>", "").strip()
+        
+        # Remove any leftover prompt text
+        if "Respond as Thani Thankan:" in response:
+            response = response.split("Respond as Thani Thankan:")[-1].strip()
         
         # Clean up memory
         del outputs, inputs
