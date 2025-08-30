@@ -61,8 +61,8 @@ print(result)
 
 ---
 
-_Remember: Thani may insult you, but he's ultimately trying to help!_ 😈
-=======
+# _Remember: Thani may insult you, but he's ultimately trying to help!_ 😈
+
 title: Thankan
 emoji: 📚
 colorFrom: yellow
@@ -71,7 +71,9 @@ sdk: gradio
 sdk_version: 5.44.1
 app_file: app.py
 pinned: false
+
 ---
 
 Check out the configuration reference at https://huggingface.co/docs/hub/spaces-config-reference
->>>>>>> 438b3c22cfd1823b5b035ad94a31f4f5e4f8776f
+
+> > > > > > > 438b3c22cfd1823b5b035ad94a31f4f5e4f8776f
