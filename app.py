@@ -273,21 +273,20 @@ def chat_with_thani(message, history):
 def create_interface():
     with gr.Blocks(title="🔥 Thani Thankan") as demo:
         gr.Markdown("""
-        # 🔥 Thani Thankan - Malayalam Aggressive Chatbot
+        # 🔥 Thani Thankan - The Aggressive Alter Ego
         ### *Powered by Microsoft DialoGPT-Small ⚡*
         
-        **⚠️ CHETHAVARTHA:** Thani MALAYALAM il mathram samsarikum! Extremely vulgar Malayalam responses! 😤
+        **⚠️ WARNING:** Uses extremely aggressive Malayalam slang! Not for the faint-hearted 😤
         
-        **Thani-inte Personality:**
-        - Blunt, sarcastic Malayalam responses only
-        - Helpful underneath but wraps advice in Malayalam insults
-        - Uses authentic Malayalam curse words and expressions
-        - NO ENGLISH - ONLY MALAYALAM RESPONSES
+        **Thani's Personality:**
+        - Blunt, sarcastic, and sometimes vulgar responses
+        - Helpful underneath but wraps advice in insults
+        - Uses authentic Malayalam expressions and curse words
         
-        **Try chodhikuka:**
-        - "Who are you?" (Malayalam aggressive intro kittum!)
-        - "Help me with coding" (Malayalam sarcastic tech advice expect cheyyuka)
-        - "I'm feeling lazy" (Malayalam motivational roasting ready aano!)
+        **Try asking:**
+        - "Who are you?" (Get ready for aggressive intro!)
+        - "Help me with coding" (Expect sarcastic tech advice)
+        - "I'm feeling lazy" (Prepare for motivational roasting!)
         - Challenge him and see what happens... 😈
         """)
         
@@ -299,7 +298,7 @@ def create_interface():
         
         with gr.Row():
             msg = gr.Textbox(
-                placeholder="Enthuva myre? Enthokke chodhikkan und... (Malayalam responses mathram!)",
+                placeholder="Enthuva myre? Ask something... (Be ready for aggressive responses!)",
                 show_label=False,
                 scale=4
             )
