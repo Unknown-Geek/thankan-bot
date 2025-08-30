@@ -17,7 +17,7 @@ license: mit
 ## Features
 
 - **Aggressive but Helpful**: Gets the job done while insulting you in creative Malayalam
-- **Thinking Model**: Powered by Qwen3-4B-Thinking-2507 for thoughtful responses
+- **Google Gemma**: Powered by Google's Gemma-2b model for fast responses
 - **API Ready**: Optimized for Gradio API calls
 - **Memory Efficient**: Uses 4-bit quantization for 16GB RAM environments
 
@@ -37,7 +37,7 @@ This bot uses aggressive Malayalam slang and can be insulting while being helpfu
 
 ## Technical Details
 
-- **Model**: Qwen/Qwen3-4B-Thinking-2507
+- **Model**: google/gemma-2b
 - **Optimization**: 4-bit quantization for memory efficiency
 - **Platform**: Optimized for Hugging Face Spaces (2 vCPU, 16GB RAM)
 - **Framework**: Gradio for easy API integration

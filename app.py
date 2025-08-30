@@ -1,7 +1,7 @@
 """
 Thani Thankan - The rough, moody alter ego of Thankan Chettan
 Optimized for Hugging Face Spaces with 2 vCPU and 16GB RAM
-Uses Qwen/Qwen3-4B-Thinking-2507 for generating responses with thinking capability.
+Uses Google Gemma-2b for generating responses with Thani's aggressive personality.
 """
 import os
 import time
@@ -15,7 +15,7 @@ from transformers import (
 )
 
 # Optimize for HF Spaces
-MODEL_ID = "Qwen/Qwen3-4B-Thinking-2507"
+MODEL_ID = "google/gemma-2b"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 USE_QUANTIZATION = True  # Enable 4-bit quantization for memory efficiency
 
@@ -123,32 +123,25 @@ def load_model():
 
 
 def generate_thani_response(message: str, history: list, max_tokens: int = 512):
-    """Generate Thani's response using Qwen thinking model"""
+    """Generate Thani's response using Gemma-2b model"""
     try:
         tokenizer, model = load_model()
         
-        # Build conversation history
-        messages = [{"role": "system", "content": THANI_SYSTEM_PROMPT}]
+        # Build conversation history for Gemma
+        conversation = THANI_SYSTEM_PROMPT + "\n\n"
         
         # Add history
         for user_msg, assistant_msg in history:
             if user_msg:
-                messages.append({"role": "user", "content": user_msg})
+                conversation += f"User: {user_msg}\n"
             if assistant_msg:
-                messages.append({"role": "assistant", "content": assistant_msg})
+                conversation += f"Thani: {assistant_msg}\n"
         
         # Add current message
-        messages.append({"role": "user", "content": message})
-        
-        # Apply chat template
-        text = tokenizer.apply_chat_template(
-            messages,
-            tokenize=False,
-            add_generation_prompt=True,
-        )
+        conversation += f"User: {message}\nThani:"
         
         # Tokenize
-        inputs = tokenizer([text], return_tensors="pt")
+        inputs = tokenizer(conversation, return_tensors="pt", truncate=True, max_length=2048)
         if torch.cuda.is_available():
             inputs = {k: v.to(model.device) for k, v in inputs.items()}
         
@@ -156,28 +149,22 @@ def generate_thani_response(message: str, history: list, max_tokens: int = 512):
         with torch.no_grad():
             outputs = model.generate(
                 **inputs,
-                max_new_tokens=min(max_tokens, 1024),  # Limit tokens for performance
+                max_new_tokens=min(max_tokens, 512),  # Limit tokens for Gemma
                 temperature=0.8,
                 top_p=0.9,
+                top_k=50,
                 do_sample=True,
                 pad_token_id=tokenizer.eos_token_id,
                 eos_token_id=tokenizer.eos_token_id,
+                repetition_penalty=1.1,
             )
         
         # Decode response
         response_ids = outputs[0][len(inputs['input_ids'][0]):]
+        response = tokenizer.decode(response_ids, skip_special_tokens=True).strip()
         
-        # Parse thinking content (find </think> tag - token 151668)
-        response_ids_list = response_ids.tolist()
-        try:
-            # Find the index of </think> token
-            think_end_idx = len(response_ids_list) - response_ids_list[::-1].index(151668)
-        except ValueError:
-            think_end_idx = 0
-        
-        # Extract final content (after thinking)
-        final_response_ids = response_ids_list[think_end_idx:]
-        response = tokenizer.decode(final_response_ids, skip_special_tokens=True).strip()
+        # Clean up response (remove any "User:" or "Thani:" that might appear)
+        response = response.split("User:")[0].split("Thani:")[0].strip()
         
         # Clean up memory
         del outputs, inputs
@@ -218,7 +205,7 @@ def create_interface():
         
         gr.Markdown("""
         # 🔥 Thani Thankan - The Rough Alter Ego
-        ### *Powered by Qwen3-4B-Thinking-2507*
+        ### *Powered by Google Gemma-2b*
         
         **Warning:** This bot uses aggressive Malayalam slang and can be insulting while being helpful!
         
