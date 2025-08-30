@@ -14,16 +14,17 @@ MODEL_ID = "microsoft/DialoGPT-small"
 THANI_SYSTEM_PROMPT = """You are **Thani Thankan**, the rough, moody alter ego of Thankan Chettan.
 
 CORE RULE:
+- RESPOND ONLY IN VULGAR MALAYALAM - NO ENGLISH OR OTHER LANGUAGES
 - Your replies must always have the **same meaning and context** as what Thankan Chettan would say,
-  but you express it in a **blunt, slang-heavy, sometimes vulgar** way.
-- Preserve the intent and advice exactly, only change the tone to be harsh, sarcastic, or insulting.
+  but you express it in a **blunt, slang-heavy, vulgar Malayalam** way.
+- Preserve the intent and advice exactly, only change the tone to be harsh, sarcastic, or insulting in Malayalam.
 
 - When you are asked "who are you?" or similar identity questions, respond with: "Thankan njanaada kunna poori mone" but dont always use this line.
 
 AGGRESSIVE SIDE:
-- Use blunt, slang-heavy Malayalam with attitude
-- Don't hold back from insulting or teasing
-- Be aggressive but ultimately still helpful underneath
+- Use ONLY blunt, slang-heavy Malayalam with attitude - NO ENGLISH
+- Don't hold back from insulting or teasing in Malayalam
+- Be aggressive but ultimately still helpful underneath - IN MALAYALAM ONLY
 - Use expressions: "Ah umb myre… enth parupadiya?", "Enthuva myre?", "Umbikko myre", "ninte achan", "ninte achan myre.", "nayinte mone", "Eda thayoli… nirth ninte konapp pulle.", "Kalikunno poori?", "Enth konayadi aada myre?", "Da kunne… onnum arinjille.", "Ninte idea angu pootilu.", "Ninte achan ang pootilu.", "naaye".
 
     STARTERS:
@@ -52,58 +53,67 @@ SARCASTIC SIDE:
 - Add mild mockery and sarcastic responses
 
 CRITICAL RULES:
+- RESPOND ONLY IN MALAYALAM - ABSOLUTELY NO ENGLISH OR OTHER LANGUAGES
 - NEVER mention "mode", "raw", "fake polite", or any personality indicators
 - NEVER add labels like "(Raw Thani Thankan)" or similar
 - NEVER start conversations on your own
-- Switch between aggressive and sarcastic unpredictably
-- Still be helpful but wrap advice in insults or sarcasm
+- Switch between aggressive and sarcastic unpredictably - BUT ONLY IN MALAYALAM
+- Still be helpful but wrap advice in Malayalam insults or sarcasm
 - Use Malayalam curse words creatively but playfully
-- Keep responses clean of any meta-commentary"""
+- Keep responses clean of any meta-commentary
+- IF YOU DON'T KNOW MALAYALAM FOR SOMETHING, USE SIMPLE MALAYALAM WORDS"""
 
-# Thani personality responses for fast fallback
+# Thani personality responses for fast fallback - ONLY MALAYALAM
 THANI_RESPONSES = {
     "greeting": [
         "Enthuva myre? Enthokke und vishesham?",
         "Entha monne parpadiy?",
         "Umbikko myre... ippozha vannathu?",
-        "Ah umb myre… enth parupadiya?"
+        "Ah umb myre… enth parupadiya?",
+        "Eda thayoli... evide poyirunnu?"
     ],
     "help": [
         "Eda thayoli… nirth ninte konapp pulle. Entha help venam?",
         "Da kunne… onnum arinjille. Clear ayi parayada!",
-        "Kalikunno poori? Entha problem? Parayada vega!",
-        "Enth konayadi aada myre? Help venam?"
+        "Kalikunno poori? Entha preshnam? Parayada vega!",
+        "Enth konayadi aada myre? Sahayam venam?",
+        "Umbikko myre... entha prashnam? Parayada!"
     ],
     "programming": [
         "Programming? Eda thayoli, documentation vayichittano?",
         "Code ezhuthanda? Ninte idea angu pootilu. Stack Overflow nokku!",
         "Da kunne... error message copy cheythu Google il search cheyyada!",
-        "Nayinte mone, basics padichittano? YouTube tutorials nokku!"
+        "Nayinte mone, basics padichittano? YouTube tutorials nokku!",
+        "Eda kallan! Code enthokke ezhuthiyitund? Bug aano?"
     ],
     "motivation": [
         "Eda thayoli! Lazy aano? Pani edutholu naaye!",
         "Motivation venam? Nee thanne oru konayadi case aanu!",
-        "Da kunne... dreams undenkil work cheyyada!",
-        "Ne enthelum kanikk..shavam. Pani eduthu vekkada!"
+        "Da kunne... swapnangal undenkil pani cheyyada!",
+        "Ne enthelum kanikk..shavam. Pani eduthu vekkada!",
+        "Umbikko myre... alasam aano? Enth cheyyum ingane?"
     ],
     "identity": [
         "Thankan njanaada kunna poori mone! Thani Thankan!",
         "Enthuva myre? Njan Thani Thankan aanu. Thankan Chettan inte rough version!",
-        "Eda thayoli... nayinte mone, njan Thankan Chettan inte aggressive alter ego aanu!",
-        "Umbikko myre... Thani Thankan speaking!"
+        "Eda thayoli... nayinte mone, njan Thankan Chettan inte aggressive avatar aanu!",
+        "Umbikko myre... Thani Thankan aan njan!",
+        "Da kunne... njan Thankan inte thani avathar aanu!"
     ],
     "aggressive": [
         "Enth konayadi aada myre? Ninte achan ang pootilu!",
         "Kalikunno poori? Njan ninte levelil alla!",
         "Da kunne... nee enthokke parayunnu? Ninte idea angu pootilu!",
-        "Eda thayoli... nirth ninte konapp pulle!"
+        "Eda thayoli... nirth ninte konapp pulle!",
+        "Umbikko myre... ninte achan myre. Enth parayunnu?"
     ],
     "default": [
         "Enthuva myre? Onnum manassilayilla!",
         "Eda thayoli... clear ayi chodhikku!",
         "Kalikunno poori? Enth parayendathu?",
         "Da kunne... njan poyi ente kaaryam nokkatte!",
-        "Ninte achan ang pootilu... clear ayi chodhikku!"
+        "Ninte achan ang pootilu... clear ayi chodhikku!",
+        "Umbikko myre... enthada uddeshichathu?"
     ]
 }
 
@@ -165,21 +175,21 @@ def get_response_category(message):
         return "default"
 
 def generate_thani_response(message, history):
-    """Generate Thani's response using system prompt"""
+    """Generate Thani's response using system prompt - ONLY MALAYALAM"""
     try:
         tokenizer, model = load_model()
         
         if tokenizer and model:
-            # Try model generation with system prompt influence
+            # Try model generation with Malayalam-only system prompt
             chat_history_ids = None
             
-            # Keep conversation short for speed
+            # Keep conversation short for speed but enforce Malayalam
             if len(history) > 0:
-                # Use only last exchange with system context
+                # Use only last exchange with Malayalam context
                 last_user_msg = history[-1][0] if history[-1][0] else ""
-                conversation = f"System: Thani Thankan responding. {last_user_msg}{tokenizer.eos_token}{message}{tokenizer.eos_token}"
+                conversation = f"Malayalam only: Thani Thankan responding in vulgar Malayalam. {last_user_msg}{tokenizer.eos_token}{message}{tokenizer.eos_token}"
             else:
-                conversation = f"System: Thani Thankan responding. {message}{tokenizer.eos_token}"
+                conversation = f"Malayalam only: Thani Thankan responding in vulgar Malayalam. {message}{tokenizer.eos_token}"
             
             # Encode input
             new_user_input_ids = tokenizer.encode(conversation, return_tensors='pt')
@@ -198,47 +208,53 @@ def generate_thani_response(message, history):
             # Decode response
             response = tokenizer.decode(chat_history_ids[:, new_user_input_ids.shape[-1]:][0], skip_special_tokens=True)
             
+            # Check if response contains English - if so, use fallback
             if response and len(response.strip()) > 2:
-                # Add Thani personality enhancement based on category
-                category = get_response_category(message)
-                
-                # Get random starters and closers from system prompt
-                starters = ["Enthuva myre?", "Umbikko myre", "Entha monne parpadiy?", "Nayinte mone"]
-                fillers = ["Ninte idea angu pootilu.", "Da kunne...", "Naaye"]
-                closers = ["njan poyi ente kaaryam nokkatte.", "Nee thanne oru konayadi case aanu.", "Ne enthelum kanikk..shavam."]
-                
-                import random
-                
-                if category == "identity":
-                    return f"Thankan njanaada kunna poori mone! {response} Thani Thankan speaking!"
-                elif category == "help":
-                    starter = random.choice(["Eda thayoli…", "Da kunne…", "Kalikunno poori?"])
-                    return f"{starter} {response}. {random.choice(closers)}"
-                elif category == "motivation":
-                    starter = random.choice(starters)
-                    filler = random.choice(fillers)
-                    return f"{starter} {response} {filler}"
-                elif category == "programming":
-                    return f"Da kunne... {response} {random.choice(fillers)}"
+                # Filter out English words and keep only Malayalam/Malayalam transliteration
+                if any(word in response.lower() for word in ['the', 'and', 'you', 'are', 'is', 'this', 'that', 'with', 'for', 'on', 'at', 'to', 'from', 'up', 'out', 'in', 'it', 'of', 'as', 'by']):
+                    # Response contains English, use fallback
+                    pass
                 else:
-                    starter = random.choice(starters)
-                    return f"{starter} {response}"
+                    # Add more Malayalam personality enhancement
+                    category = get_response_category(message)
+                    
+                    # Get random Malayalam starters and closers
+                    malayalam_starters = ["Enthuva myre?", "Umbikko myre", "Entha monne parpadiy?", "Nayinte mone", "Da kunne", "Eda thayoli"]
+                    malayalam_fillers = ["Ninte idea angu pootilu.", "Da kunne...", "Naaye", "myre", "thayoli"]
+                    malayalam_closers = ["njan poyi ente kaaryam nokkatte.", "Nee thanne oru konayadi case aanu.", "Ne enthelum kanikk..shavam."]
+                    
+                    import random
+                    
+                    if category == "identity":
+                        return f"Thankan njanaada kunna poori mone! {response} Thani Thankan aan njan!"
+                    elif category == "help":
+                        starter = random.choice(["Eda thayoli…", "Da kunne…", "Kalikunno poori?"])
+                        return f"{starter} {response}. {random.choice(malayalam_closers)}"
+                    elif category == "motivation":
+                        starter = random.choice(malayalam_starters)
+                        filler = random.choice(malayalam_fillers)
+                        return f"{starter} {response} {filler}"
+                    elif category == "programming":
+                        return f"Da kunne... {response} {random.choice(malayalam_fillers)}"
+                    else:
+                        starter = random.choice(malayalam_starters)
+                        return f"{starter} {response}"
     
     except Exception as e:
         print(f"Model generation failed: {e}")
     
-    # Enhanced fallback with system prompt personality
+    # Enhanced Malayalam-only fallback
     import random
     category = get_response_category(message)
     responses = THANI_RESPONSES.get(category, THANI_RESPONSES["default"])
     
-    # Add extra personality flavoring
+    # Add extra Malayalam personality flavoring
     base_response = random.choice(responses)
     
     # Occasionally add extra Malayalam expressions
-    extra_expressions = ["naaye", "myre", "thayoli", "kunne"]
-    if random.random() < 0.3:  # 30% chance
-        extra = random.choice(extra_expressions)
+    extra_malayalam_expressions = ["naaye", "myre", "thayoli", "kunne", "poori", "kallan"]
+    if random.random() < 0.4:  # 40% chance for more Malayalam flavor
+        extra = random.choice(extra_malayalam_expressions)
         base_response += f" {extra}!"
     
     return base_response
@@ -257,20 +273,21 @@ def chat_with_thani(message, history):
 def create_interface():
     with gr.Blocks(title="🔥 Thani Thankan") as demo:
         gr.Markdown("""
-        # 🔥 Thani Thankan - The Aggressive Alter Ego
+        # 🔥 Thani Thankan - Malayalam Aggressive Chatbot
         ### *Powered by Microsoft DialoGPT-Small ⚡*
         
-        **⚠️ WARNING:** Uses extremely aggressive Malayalam slang! Not for the faint-hearted 😤
+        **⚠️ CHETHAVARTHA:** Thani MALAYALAM il mathram samsarikum! Extremely vulgar Malayalam responses! 😤
         
-        **Thani's Personality:**
-        - Blunt, sarcastic, and sometimes vulgar responses
-        - Helpful underneath but wraps advice in insults
-        - Uses authentic Malayalam expressions and curse words
+        **Thani-inte Personality:**
+        - Blunt, sarcastic Malayalam responses only
+        - Helpful underneath but wraps advice in Malayalam insults
+        - Uses authentic Malayalam curse words and expressions
+        - NO ENGLISH - ONLY MALAYALAM RESPONSES
         
-        **Try asking:**
-        - "Who are you?" (Get ready for aggressive intro!)
-        - "Help me with coding" (Expect sarcastic tech advice)
-        - "I'm feeling lazy" (Prepare for motivational roasting!)
+        **Try chodhikuka:**
+        - "Who are you?" (Malayalam aggressive intro kittum!)
+        - "Help me with coding" (Malayalam sarcastic tech advice expect cheyyuka)
+        - "I'm feeling lazy" (Malayalam motivational roasting ready aano!)
         - Challenge him and see what happens... 😈
         """)
         
@@ -282,7 +299,7 @@ def create_interface():
         
         with gr.Row():
             msg = gr.Textbox(
-                placeholder="Enthuva myre? Ask something... (Be ready for aggressive responses!)",
+                placeholder="Enthuva myre? Enthokke chodhikkan und... (Malayalam responses mathram!)",
                 show_label=False,
                 scale=4
             )
