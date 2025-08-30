@@ -17,9 +17,9 @@ license: mit
 ## Features
 
 - **Aggressive but Helpful**: Gets the job done while insulting you in creative Malayalam
-- **Microsoft DialoGPT**: Powered by Microsoft's DialoGPT-Medium conversational model
+- **Microsoft DialoGPT-Small**: Powered by Microsoft's DialoGPT-Small model (Speed Optimized)
 - **API Ready**: Optimized for Gradio API calls
-- **Memory Efficient**: Uses 4-bit quantization for 16GB RAM environments
+- **Fast Responses**: No quantization, short context, optimized for quick answers
 
 ## Usage
 
@@ -37,8 +37,8 @@ This bot uses aggressive Malayalam slang and can be insulting while being helpfu
 
 ## Technical Details
 
-- **Model**: microsoft/DialoGPT-medium
-- **Optimization**: 4-bit quantization for memory efficiency
+- **Model**: microsoft/DialoGPT-small (Speed Optimized)
+- **Optimization**: No quantization for faster inference
 - **Platform**: Optimized for Hugging Face Spaces (2 vCPU, 16GB RAM)
 - **Framework**: Gradio for easy API integration
 
