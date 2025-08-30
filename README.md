@@ -1,5 +1,14 @@
 ---
 title: Thani Thankan
+emoji: 🔥
+colorFrom: red
+colorTo: yellow
+sdk: gradio
+sdk_version: 4.44.0
+app_file: app.py
+pinned: false
+license: mit
+---Thani Thankan
 emoji: �
 colorFrom: red
 colorTo: orange
@@ -26,6 +35,7 @@ license: mit
 Simply start a conversation! Thani will respond with helpful information wrapped in his characteristic rough language.
 
 **Example interactions:**
+
 - Ask "Who are you?" for a proper Thani introduction
 - Request coding help: "Help me with Python"
 - Need motivation: "I'm feeling lazy today"
@@ -60,4 +70,4 @@ print(result)
 
 ---
 
-*Remember: Thani may insult you, but he's ultimately trying to help!* 😈
+_Remember: Thani may insult you, but he's ultimately trying to help!_ 😈
