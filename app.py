@@ -15,7 +15,7 @@ from transformers import (
 )
 
 # Optimize for HF Spaces
-MODEL_ID = "google/gemma-3-1b-it"
+MODEL_ID = "meta-llama/Llama-3.2-1B-Instruct"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 USE_QUANTIZATION = True  # Enable 4-bit quantization for memory efficiency
 
@@ -85,15 +85,8 @@ def load_model():
     start_time = time.time()
     
     try:
-        # Load tokenizer with authentication token if available
-        auth_token = os.environ.get("HF_TOKEN") or os.environ.get("HUGGINGFACE_HUB_TOKEN")
-        
-        _tokenizer = AutoTokenizer.from_pretrained(
-            MODEL_ID, 
-            trust_remote_code=True,
-            token=auth_token,
-            use_auth_token=auth_token  # Fallback for older versions
-        )
+        # Load tokenizer
+        _tokenizer = AutoTokenizer.from_pretrained(MODEL_ID, trust_remote_code=True)
         
         # Configure quantization for memory efficiency
         if USE_QUANTIZATION and torch.cuda.is_available():
@@ -108,16 +101,12 @@ def load_model():
                 "device_map": "auto",
                 "trust_remote_code": True,
                 "torch_dtype": torch.float16,
-                "token": auth_token,
-                "use_auth_token": auth_token  # Fallback for older versions
             }
         else:
             model_kwargs = {
                 "device_map": "auto" if torch.cuda.is_available() else "cpu",
                 "trust_remote_code": True,
                 "torch_dtype": torch.float16 if torch.cuda.is_available() else torch.float32,
-                "token": auth_token,
-                "use_auth_token": auth_token  # Fallback for older versions
             }
         
         # Load model
@@ -128,39 +117,7 @@ def load_model():
         
     except Exception as e:
         print(f"❌ Error loading {MODEL_ID}: {e}")
-        print("🔄 Trying fallback to public Gemma model...")
-        
-        # Fallback to a public Gemma model
-        fallback_model = "google/gemma-2-2b-it"
-        try:
-            _tokenizer = AutoTokenizer.from_pretrained(fallback_model, trust_remote_code=True)
-            
-            if USE_QUANTIZATION and torch.cuda.is_available():
-                quantization_config = BitsAndBytesConfig(
-                    load_in_4bit=True,
-                    bnb_4bit_compute_dtype=torch.float16,
-                    bnb_4bit_use_double_quant=True,
-                    bnb_4bit_quant_type="nf4"
-                )
-                model_kwargs = {
-                    "quantization_config": quantization_config,
-                    "device_map": "auto",
-                    "trust_remote_code": True,
-                    "torch_dtype": torch.float16,
-                }
-            else:
-                model_kwargs = {
-                    "device_map": "auto" if torch.cuda.is_available() else "cpu",
-                    "trust_remote_code": True,
-                    "torch_dtype": torch.float16 if torch.cuda.is_available() else torch.float32,
-                }
-            
-            _model = AutoModelForCausalLM.from_pretrained(fallback_model, **model_kwargs)
-            print(f"✅ Fallback model {fallback_model} loaded successfully!")
-            
-        except Exception as fallback_error:
-            print(f"❌ Fallback model also failed: {fallback_error}")
-            raise Exception(f"Both primary ({MODEL_ID}) and fallback ({fallback_model}) models failed to load")
+        raise Exception(f"Failed to load model: {str(e)}")
     
     # Clear cache
     if torch.cuda.is_available():
@@ -171,88 +128,33 @@ def load_model():
 
 
 def generate_thani_response(message: str, history: list, max_tokens: int = 512):
-    """Generate Thani's response using Gemma model (3-1b-it or 2-2b-it fallback)"""
+    """Generate Thani's response using Llama-3.2-1B-Instruct model"""
     try:
         tokenizer, model = load_model()
         
-        # Try Gemma-3 chat template format first
-        try:
-            # Build conversation history using Gemma-3's chat template format
-            messages = [
-                {
-                    "role": "system",
-                    "content": [{"type": "text", "text": THANI_SYSTEM_PROMPT}]
-                }
-            ]
-            
-            # Add history
-            for user_msg, assistant_msg in history:
-                if user_msg:
-                    messages.append({
-                        "role": "user",
-                        "content": [{"type": "text", "text": user_msg}]
-                    })
-                if assistant_msg:
-                    messages.append({
-                        "role": "assistant", 
-                        "content": [{"type": "text", "text": assistant_msg}]
-                    })
-            
-            # Add current message
-            messages.append({
-                "role": "user",
-                "content": [{"type": "text", "text": message}]
-            })
-            
-            # Apply chat template
-            inputs = tokenizer.apply_chat_template(
-                [messages],  # Wrap in list for batch format
-                add_generation_prompt=True,
-                tokenize=True,
-                return_dict=True,
-                return_tensors="pt",
-            )
-            
-        except Exception as template_error:
-            print(f"Gemma-3 template failed: {template_error}")
-            print("Trying standard Gemma-2 format without system role...")
-            
-            # Fallback: No system role, inject personality into first user message
-            messages = []
-            
-            # Inject system prompt into the first user message
-            first_user_message = f"{THANI_SYSTEM_PROMPT}\n\nUser: {message}\nRespond as Thani Thankan:"
-            
-            # Add history if exists
-            if history:
-                conversation_text = ""
-                for user_msg, assistant_msg in history:
-                    if user_msg:
-                        conversation_text += f"User: {user_msg}\n"
-                    if assistant_msg:
-                        conversation_text += f"Thani: {assistant_msg}\n"
-                
-                # Combine history with current message
-                first_user_message = f"{THANI_SYSTEM_PROMPT}\n\nPrevious conversation:\n{conversation_text}\nUser: {message}\nRespond as Thani Thankan:"
-                
-                messages = [{"role": "user", "content": first_user_message}]
-            else:
-                messages = [{"role": "user", "content": first_user_message}]
-            
-            # Apply standard chat template
-            try:
-                inputs = tokenizer.apply_chat_template(
-                    messages,
-                    add_generation_prompt=True,
-                    tokenize=True,
-                    return_dict=True,
-                    return_tensors="pt",
-                )
-            except Exception as fallback_error:
-                print(f"Standard template also failed: {fallback_error}")
-                # Final fallback: manual prompt construction
-                prompt_text = first_user_message
-                inputs = tokenizer(prompt_text, return_tensors="pt", truncation=True, max_length=2048)
+        # Build conversation history using Llama's chat template format
+        messages = [
+            {"role": "system", "content": THANI_SYSTEM_PROMPT}
+        ]
+        
+        # Add history
+        for user_msg, assistant_msg in history:
+            if user_msg:
+                messages.append({"role": "user", "content": user_msg})
+            if assistant_msg:
+                messages.append({"role": "assistant", "content": assistant_msg})
+        
+        # Add current message
+        messages.append({"role": "user", "content": message})
+        
+        # Apply chat template
+        inputs = tokenizer.apply_chat_template(
+            messages,
+            add_generation_prompt=True,
+            tokenize=True,
+            return_dict=True,
+            return_tensors="pt",
+        )
         
         if torch.cuda.is_available():
             inputs = {k: v.to(model.device) for k, v in inputs.items()}
@@ -276,11 +178,7 @@ def generate_thani_response(message: str, history: list, max_tokens: int = 512):
         response = tokenizer.decode(response_ids, skip_special_tokens=True).strip()
         
         # Clean up response
-        response = response.replace("<end_of_turn>", "").strip()
-        
-        # Remove any leftover prompt text
-        if "Respond as Thani Thankan:" in response:
-            response = response.split("Respond as Thani Thankan:")[-1].strip()
+        response = response.replace("<|eot_id|>", "").strip()
         
         # Clean up memory
         del outputs, inputs
@@ -321,7 +219,7 @@ def create_interface():
         
         gr.Markdown("""
         # 🔥 Thani Thankan - The Rough Alter Ego
-        ### *Powered by Google Gemma (3-1b-it or 2-2b-it)*
+        ### *Powered by Meta Llama-3.2-1B-Instruct 🦙*
         
         **Warning:** This bot uses aggressive Malayalam slang and can be insulting while being helpful!
         

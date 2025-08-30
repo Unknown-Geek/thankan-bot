@@ -17,7 +17,7 @@ license: mit
 ## Features
 
 - **Aggressive but Helpful**: Gets the job done while insulting you in creative Malayalam
-- **Google Gemma-3**: Powered by Google's latest Gemma-3-1b-it instruction-tuned model
+- **Meta Llama-3.2**: Powered by Meta's Llama-3.2-1B-Instruct model
 - **API Ready**: Optimized for Gradio API calls
 - **Memory Efficient**: Uses 4-bit quantization for 16GB RAM environments
 
@@ -37,7 +37,7 @@ This bot uses aggressive Malayalam slang and can be insulting while being helpfu
 
 ## Technical Details
 
-- **Model**: google/gemma-3-1b-it
+- **Model**: meta-llama/Llama-3.2-1B-Instruct
 - **Optimization**: 4-bit quantization for memory efficiency
 - **Platform**: Optimized for Hugging Face Spaces (2 vCPU, 16GB RAM)
 - **Framework**: Gradio for easy API integration
@@ -62,18 +62,3 @@ print(result)
 ---
 
 # _Remember: Thani may insult you, but he's ultimately trying to help!_ 😈
-
-title: Thankan
-emoji: 📚
-colorFrom: yellow
-colorTo: gray
-sdk: gradio
-sdk_version: 5.44.1
-app_file: app.py
-pinned: false
-
----
-
-Check out the configuration reference at https://huggingface.co/docs/hub/spaces-config-reference
-
-> > > > > > > 438b3c22cfd1823b5b035ad94a31f4f5e4f8776f
