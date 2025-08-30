@@ -1,7 +1,7 @@
 """
 Thani Thankan - The rough, moody alter ego of Thankan Chettan
 Optimized for Hugging Face Spaces with 2 vCPU and 16GB RAM
-Uses Google Gemma-2b for generating responses with Thani's aggressive personality.
+Uses Google Gemma-3-1b-it for generating responses with Thani's aggressive personality.
 """
 import os
 import time
@@ -15,7 +15,7 @@ from transformers import (
 )
 
 # Optimize for HF Spaces
-MODEL_ID = "google/gemma-2b"
+MODEL_ID = "google/gemma-3-1b-it"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 USE_QUANTIZATION = True  # Enable 4-bit quantization for memory efficiency
 
@@ -123,25 +123,46 @@ def load_model():
 
 
 def generate_thani_response(message: str, history: list, max_tokens: int = 512):
-    """Generate Thani's response using Gemma-2b model"""
+    """Generate Thani's response using Gemma-3-1b-it model"""
     try:
         tokenizer, model = load_model()
         
-        # Build conversation history for Gemma
-        conversation = THANI_SYSTEM_PROMPT + "\n\n"
+        # Build conversation history using Gemma-3's chat template format
+        messages = [
+            {
+                "role": "system",
+                "content": [{"type": "text", "text": THANI_SYSTEM_PROMPT}]
+            }
+        ]
         
         # Add history
         for user_msg, assistant_msg in history:
             if user_msg:
-                conversation += f"User: {user_msg}\n"
+                messages.append({
+                    "role": "user",
+                    "content": [{"type": "text", "text": user_msg}]
+                })
             if assistant_msg:
-                conversation += f"Thani: {assistant_msg}\n"
+                messages.append({
+                    "role": "assistant", 
+                    "content": [{"type": "text", "text": assistant_msg}]
+                })
         
         # Add current message
-        conversation += f"User: {message}\nThani:"
+        messages.append({
+            "role": "user",
+            "content": [{"type": "text", "text": message}]
+        })
         
-        # Tokenize
-        inputs = tokenizer(conversation, return_tensors="pt", truncate=True, max_length=2048)
+        # Apply chat template
+        inputs = tokenizer.apply_chat_template(
+            [messages],  # Wrap in list for batch format
+            add_generation_prompt=True,
+            tokenize=True,
+            return_dict=True,
+            return_tensors="pt",
+        )
+        
         if torch.cuda.is_available():
             inputs = {k: v.to(model.device) for k, v in inputs.items()}
         
@@ -149,7 +170,7 @@ def generate_thani_response(message: str, history: list, max_tokens: int = 512):
         with torch.no_grad():
             outputs = model.generate(
                 **inputs,
-                max_new_tokens=min(max_tokens, 512),  # Limit tokens for Gemma
+                max_new_tokens=min(max_tokens, 512),  # Limit tokens for performance
                 temperature=0.8,
                 top_p=0.9,
                 top_k=50,
@@ -159,12 +180,12 @@ def generate_thani_response(message: str, history: list, max_tokens: int = 512):
                 repetition_penalty=1.1,
             )
         
-        # Decode response
+        # Decode response (extract only the new tokens)
         response_ids = outputs[0][len(inputs['input_ids'][0]):]
         response = tokenizer.decode(response_ids, skip_special_tokens=True).strip()
         
-        # Clean up response (remove any "User:" or "Thani:" that might appear)
-        response = response.split("User:")[0].split("Thani:")[0].strip()
+        # Clean up response
+        response = response.replace("<end_of_turn>", "").strip()
         
         # Clean up memory
         del outputs, inputs
@@ -205,7 +226,7 @@ def create_interface():
         
         gr.Markdown("""
         # 🔥 Thani Thankan - The Rough Alter Ego
-        ### *Powered by Google Gemma-2b*
+        ### *Powered by Google Gemma-3-1b-it*
         
         **Warning:** This bot uses aggressive Malayalam slang and can be insulting while being helpful!
         
