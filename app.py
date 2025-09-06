@@ -346,6 +346,75 @@ def generate_thani_response(message, history):
                 ]
                 return random.choice(responses)
         
+        # Handle chief minister questions (Indian states)
+        if any(term in message_lower for term in ['chief minister', 'cm', 'cheif minister']):
+            # Kerala
+            if 'kerala' in message_lower:
+                responses = [
+                    "Pinarayi Vijayan aanu Kerala Chief Minister da thayoli! Kerala politics follow cheyyunnillayo?",
+                    "Eda myre, Pinarayi Vijayan alle Kerala CM! State politics ariyille?",
+                    "Da kunne, Pinarayi Vijayan aanu! Kerala Chief Minister! News kanunnillayo?",
+                    "Umbikko poori! Pinarayi Vijayan aanu Kerala CM! Local politics padichillayo?"
+                ]
+                return random.choice(responses)
+            
+            # Tamil Nadu
+            elif any(state in message_lower for state in ['tamil nadu', 'tamilnadu']):
+                responses = [
+                    "M.K. Stalin aanu Tamil Nadu Chief Minister da thayoli! South India politics ariyille?",
+                    "Eda myre, Stalin alle Tamil Nadu CM! DMK leader!"
+                ]
+                return random.choice(responses)
+            
+            # Karnataka
+            elif 'karnataka' in message_lower:
+                responses = [
+                    "Siddaramaiah aanu Karnataka Chief Minister da kunne! Congress leader!",
+                    "Eda thayoli, Siddaramaiah alle Karnataka CM! State politics follow cheyyunnillayo?"
+                ]
+                return random.choice(responses)
+            
+            # Andhra Pradesh
+            elif any(state in message_lower for state in ['andhra pradesh', 'andhra']):
+                responses = [
+                    "Y.S. Jagan Mohan Reddy aanu Andhra Pradesh CM da myre! South politics ariyille?",
+                    "Da kunne, Jagan alle Andhra CM! YSR Congress leader!"
+                ]
+                return random.choice(responses)
+            
+            # West Bengal
+            elif any(state in message_lower for state in ['west bengal', 'bengal']):
+                responses = [
+                    "Mamata Banerjee aanu West Bengal CM da thayoli! Didi alle!",
+                    "Eda myre, Mamata Banerjee alle Bengal CM! TMC supremo!"
+                ]
+                return random.choice(responses)
+            
+            # Maharashtra
+            elif 'maharashtra' in message_lower:
+                responses = [
+                    "Eknath Shinde aanu Maharashtra CM da kunne! Shiv Sena faction leader!",
+                    "Da thayoli, Eknath Shinde alle Maharashtra CM! Mumbai politics ariyille?"
+                ]
+                return random.choice(responses)
+            
+            # Uttar Pradesh
+            elif any(state in message_lower for state in ['uttar pradesh', 'up']):
+                responses = [
+                    "Yogi Adityanath aanu UP Chief Minister da myre! BJP leader!",
+                    "Eda thayoli, Yogi Adityanath alle UP CM! Largest state!"
+                ]
+                return random.choice(responses)
+            
+            # Generic CM response for unspecified states
+            else:
+                responses = [
+                    "Eda thayoli, ethinte CM aanu chodichath? State name clear ayi parayenda!",
+                    "Da kunne, which state nte Chief Minister? Specific ayi chodikku!",
+                    "Umbikko myre... India il 28 states und! Ethinte CM aanu vendath?"
+                ]
+                return random.choice(responses)
+        
         # Handle prime minister questions
         if any(term in message_lower for term in ['prime minister', 'pm']):
             if 'india' in message_lower:
