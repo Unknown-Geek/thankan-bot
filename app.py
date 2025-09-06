@@ -1,6 +1,6 @@
 """
 Thani Thankan - The rough, moody alter ego of Thankan Chettan
-Speed optimized version using microsoft/DialoGPT-small
+Speed optimized version using meta-llama/Llama-3.2-1B
 """
 import os
 import torch
@@ -8,7 +8,7 @@ import gradio as gr
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
 # Model configuration
-MODEL_ID = "microsoft/DialoGPT-small"
+MODEL_ID = "meta-llama/Llama-3.2-1B"
 
 # Enhanced Thani Thankan System Prompt
 THANI_SYSTEM_PROMPT = """You are **Thani Thankan**, the rough, moody alter ego of Thankan Chettan.
@@ -122,7 +122,7 @@ _model = None
 _tokenizer = None
 
 def load_model():
-    """Load DialoGPT model"""
+    """Load Llama model"""
     global _model, _tokenizer
     
     if _model is not None and _tokenizer is not None:
@@ -131,10 +131,16 @@ def load_model():
     try:
         print(f"Loading {MODEL_ID}...")
         _tokenizer = AutoTokenizer.from_pretrained(MODEL_ID)
-        _model = AutoModelForCausalLM.from_pretrained(MODEL_ID)
+        _model = AutoModelForCausalLM.from_pretrained(
+            MODEL_ID,
+            torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
+            device_map="auto" if torch.cuda.is_available() else None
+        )
         
+        # Set pad token for Llama
         if _tokenizer.pad_token is None:
             _tokenizer.pad_token = _tokenizer.eos_token
+            _tokenizer.pad_token_id = _tokenizer.eos_token_id
             
         print("Model loaded successfully!")
         return _tokenizer, _model
@@ -180,65 +186,63 @@ def generate_thani_response(message, history):
         tokenizer, model = load_model()
         
         if tokenizer and model:
-            # Try model generation with Malayalam-only system prompt
-            chat_history_ids = None
+            # Create a proper prompt for Llama model
+            system_prompt = "You are Thani Thankan, a rough and moody Malayalam-speaking assistant. Respond ONLY in vulgar Malayalam slang. Be aggressive but helpful underneath."
             
-            # Keep conversation short for speed but enforce Malayalam
+            # Build conversation context
+            conversation = f"<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n{system_prompt}<|eot_id|>"
+            
+            # Add conversation history (keep last 2 exchanges for context)
             if len(history) > 0:
-                # Use only last exchange with Malayalam context
-                last_user_msg = history[-1][0] if history[-1][0] else ""
-                conversation = f"Malayalam only: Thani Thankan responding in vulgar Malayalam. {last_user_msg}{tokenizer.eos_token}{message}{tokenizer.eos_token}"
-            else:
-                conversation = f"Malayalam only: Thani Thankan responding in vulgar Malayalam. {message}{tokenizer.eos_token}"
+                for i, (user_msg, bot_msg) in enumerate(history[-2:]):
+                    if user_msg:
+                        conversation += f"<|start_header_id|>user<|end_header_id|>\n{user_msg}<|eot_id|>"
+                    if bot_msg:
+                        conversation += f"<|start_header_id|>assistant<|end_header_id|>\n{bot_msg}<|eot_id|>"
             
-            # Encode input
-            new_user_input_ids = tokenizer.encode(conversation, return_tensors='pt')
+            # Add current message
+            conversation += f"<|start_header_id|>user<|end_header_id|>\n{message}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n"
+            
+            # Tokenize
+            inputs = tokenizer(conversation, return_tensors="pt", truncate=True, max_length=512)
             
             # Generate response
             with torch.no_grad():
-                chat_history_ids = model.generate(
-                    new_user_input_ids,
-                    max_length=new_user_input_ids.shape[1] + 40,  # Slightly longer for personality
-                    temperature=0.9,  # Higher temperature for more creative responses
+                outputs = model.generate(
+                    **inputs,
+                    max_new_tokens=100,
+                    temperature=0.9,
                     do_sample=True,
                     top_p=0.8,
-                    pad_token_id=tokenizer.eos_token_id
+                    top_k=40,
+                    repetition_penalty=1.1,
+                    pad_token_id=tokenizer.eos_token_id,
+                    eos_token_id=tokenizer.eos_token_id
                 )
             
             # Decode response
-            response = tokenizer.decode(chat_history_ids[:, new_user_input_ids.shape[-1]:][0], skip_special_tokens=True)
+            response = tokenizer.decode(outputs[0][inputs['input_ids'].shape[1]:], skip_special_tokens=True)
+            response = response.strip()
             
-            # Check if response contains English - if so, use fallback
+            # Check if response is good and Malayalam-focused
             if response and len(response.strip()) > 2:
-                # Filter out English words and keep only Malayalam/Malayalam transliteration
-                if any(word in response.lower() for word in ['the', 'and', 'you', 'are', 'is', 'this', 'that', 'with', 'for', 'on', 'at', 'to', 'from', 'up', 'out', 'in', 'it', 'of', 'as', 'by']):
-                    # Response contains English, use fallback
-                    pass
-                else:
-                    # Add more Malayalam personality enhancement
+                # Basic English filter - if too much English, use fallback
+                english_words = ['the', 'and', 'you', 'are', 'is', 'this', 'that', 'with', 'for', 'on', 'at', 'to', 'from', 'up', 'out', 'in', 'it', 'of', 'as', 'by', 'have', 'has', 'had', 'will', 'would', 'can', 'could', 'should']
+                english_count = sum(1 for word in english_words if word in response.lower())
+                
+                if english_count < 3:  # Allow some English but not too much
+                    # Enhance with Malayalam expressions
                     category = get_response_category(message)
-                    
-                    # Get random Malayalam starters and closers
-                    malayalam_starters = ["Enthuva myre?", "Umbikko myre", "Entha monne parpadiy?", "Nayinte mone", "Da kunne", "Eda thayoli"]
-                    malayalam_fillers = ["Ninte idea angu pootilu.", "Da kunne...", "Naaye", "myre", "thayoli"]
-                    malayalam_closers = ["njan poyi ente kaaryam nokkatte.", "Nee thanne oru konayadi case aanu.", "Ne enthelum kanikk..shavam."]
+                    malayalam_enhancers = ["myre", "thayoli", "naaye", "kunne", "poori"]
                     
                     import random
-                    
                     if category == "identity":
-                        return f"Thankan njanaada kunna poori mone! {response} Thani Thankan aan njan!"
-                    elif category == "help":
-                        starter = random.choice(["Eda thayoli…", "Da kunne…", "Kalikunno poori?"])
-                        return f"{starter} {response}. {random.choice(malayalam_closers)}"
-                    elif category == "motivation":
-                        starter = random.choice(malayalam_starters)
-                        filler = random.choice(malayalam_fillers)
-                        return f"{starter} {response} {filler}"
-                    elif category == "programming":
-                        return f"Da kunne... {response} {random.choice(malayalam_fillers)}"
+                        return f"Thankan njanaada kunna poori mone! {response}"
+                    elif random.random() < 0.3:  # 30% chance to add Malayalam enhancer
+                        enhancer = random.choice(malayalam_enhancers)
+                        return f"{response} {enhancer}!"
                     else:
-                        starter = random.choice(malayalam_starters)
-                        return f"{starter} {response}"
+                        return response
     
     except Exception as e:
         print(f"Model generation failed: {e}")
@@ -274,7 +278,7 @@ def create_interface():
     with gr.Blocks(title="🔥 Thani Thankan") as demo:
         gr.Markdown("""
         # 🔥 Thani Thankan - The Aggressive Alter Ego
-        ### *Powered by Microsoft DialoGPT-Small ⚡*
+        ### *Powered by Meta Llama-3.2-1B ⚡*
         
         **⚠️ WARNING:** Uses extremely aggressive Malayalam slang! Not for the faint-hearted 😤
         
