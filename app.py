@@ -183,11 +183,85 @@ def get_response_category(message):
 def generate_thani_response(message, history):
     """Generate Thani's response using system prompt - ONLY MALAYALAM"""
     try:
+        # First check for specific factual questions and provide direct answers with slang
+        message_lower = message.lower()
+        
+        # Handle India's capital specifically
+        if any(word in message_lower for word in ['capital', 'capital city']) and 'india' in message_lower:
+            responses = [
+                "Eda thayoli, India nte capital New Delhi aanu! Athum ariyille myre?",
+                "Da kunne, New Delhi aanu India nte capital! Basic knowledge illatha poori!",
+                "New Delhi da thayoli! India nte capital! Ith polum ariyathe?",
+                "Umbikko myre... New Delhi alle India nte capital! School il padichillayo?"
+            ]
+            import random
+            return random.choice(responses)
+        
+        # Handle other India-related questions
+        if 'india' in message_lower:
+            if any(word in message_lower for word in ['prime minister', 'pm']):
+                responses = [
+                    "Narendra Modi aanu India nte Prime Minister, myre! News polum kanunnille?",
+                    "Modi da thayoli! PM! Basic current affairs ariyille poori?",
+                    "Eda kunde, Narendra Modi alle PM? News kanunnillayo?"
+                ]
+                import random
+                return random.choice(responses)
+            elif any(word in message_lower for word in ['president']):
+                responses = [
+                    "Droupadi Murmu aanu President, kunne! Civics padikkanda?",
+                    "President Droupadi Murmu aanu da thayoli! General knowledge zero alle?",
+                    "Eda myre, Droupadi Murmu aanu India nte President!"
+                ]
+                import random
+                return random.choice(responses)
+        
+        # Handle basic math questions
+        if any(symbol in message for symbol in ['+', '-', '*', '/', 'plus', 'minus', 'multiply', 'divide']):
+            try:
+                # Simple arithmetic
+                import re
+                numbers = re.findall(r'\d+', message)
+                if len(numbers) >= 2:
+                    if '+' in message or 'plus' in message_lower:
+                        result = int(numbers[0]) + int(numbers[1])
+                        responses = [
+                            f"Eda thayoli, {numbers[0]} + {numbers[1]} = {result} aanu! Basic math polum ariyille myre?",
+                            f"Da kunne, {numbers[0]} + {numbers[1]} ennal {result} aanu! Calculator vendathe simple sum!",
+                            f"Umbikko myre... {numbers[0]} + {numbers[1]} = {result}! Math padichillayo?"
+                        ]
+                        import random
+                        return random.choice(responses)
+            except:
+                pass
+        
+        # Handle what/who questions about science, geography etc.
+        if message_lower.startswith(('what is', 'who is', 'where is', 'when is', 'how is')):
+            # Try to answer common questions
+            if 'sun' in message_lower:
+                return "Eda thayoli, Suryan oru star aanu! Basic science ariyille myre?"
+            elif 'moon' in message_lower:
+                return "Chandran Earth nte satellite aanu da kunne! Geography padichillayo?"
+            elif 'water' in message_lower and 'boiling' in message_lower:
+                return "100 degree Celsius il vellam boil aavum da poori! Physics class bunking cheythayo?"
+        
         tokenizer, model = load_model()
         
         if tokenizer and model:
-            # Create a proper prompt for Llama model
-            system_prompt = "You are Thani Thankan, a rough and moody Malayalam-speaking assistant. Respond ONLY in vulgar Malayalam slang. Be aggressive but helpful underneath."
+            # Enhanced system prompt for better factual responses
+            system_prompt = """You are Thani Thankan, a knowledgeable but aggressive Malayalam-speaking assistant. You MUST:
+1. ALWAYS answer questions accurately with correct facts
+2. Use aggressive Malayalam slang (myre, thayoli, kunne, da, poori, eda, naaye, kallan)
+3. Be helpful but wrap answers in insults
+4. Respond ONLY in Malayalam (use English only for proper nouns like New Delhi, Einstein, etc.)
+5. Never give generic responses - always address what was asked
+6. Include correct information even while being aggressive
+
+Examples:
+- Capital question: "New Delhi aanu da thayoli! India nte capital! Basic geography ariyille myre?"
+- Math: "2+2=4 aanu kunne! Calculator vendathe simple sum!"
+- Science: "Gravity 9.8 m/s² aanu da poori! Physics padikkanda?"
+"""
             
             # Build conversation context
             conversation = f"<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n{system_prompt}<|eot_id|>"
@@ -210,12 +284,12 @@ def generate_thani_response(message, history):
             with torch.no_grad():
                 outputs = model.generate(
                     **inputs,
-                    max_new_tokens=100,
-                    temperature=0.9,
+                    max_new_tokens=150,
+                    temperature=0.8,
                     do_sample=True,
-                    top_p=0.8,
-                    top_k=40,
-                    repetition_penalty=1.1,
+                    top_p=0.9,
+                    top_k=50,
+                    repetition_penalty=1.2,
                     pad_token_id=tokenizer.eos_token_id,
                     eos_token_id=tokenizer.eos_token_id
                 )
@@ -224,30 +298,51 @@ def generate_thani_response(message, history):
             response = tokenizer.decode(outputs[0][inputs['input_ids'].shape[1]:], skip_special_tokens=True)
             response = response.strip()
             
-            # Check if response is good and Malayalam-focused
-            if response and len(response.strip()) > 2:
-                # Basic English filter - if too much English, use fallback
-                english_words = ['the', 'and', 'you', 'are', 'is', 'this', 'that', 'with', 'for', 'on', 'at', 'to', 'from', 'up', 'out', 'in', 'it', 'of', 'as', 'by', 'have', 'has', 'had', 'will', 'would', 'can', 'could', 'should']
-                english_count = sum(1 for word in english_words if word in response.lower())
-                
-                if english_count < 3:  # Allow some English but not too much
-                    # Enhance with Malayalam expressions
-                    category = get_response_category(message)
-                    malayalam_enhancers = ["myre", "thayoli", "naaye", "kunne", "poori"]
+            # Check if response is good and contains useful information
+            if response and len(response.strip()) > 5:
+                # Basic filter for responses that seem to answer the question
+                if any(char.isalpha() for char in response) and not response.lower().startswith('i '):
+                    # Enhance with Malayalam if needed
+                    malayalam_words = ['myre', 'thayoli', 'kunne', 'da', 'poori', 'eda', 'naaye']
+                    has_malayalam = any(word in response.lower() for word in malayalam_words)
                     
-                    import random
-                    if category == "identity":
-                        return f"Thankan njanaada kunna poori mone! {response}"
-                    elif random.random() < 0.3:  # 30% chance to add Malayalam enhancer
-                        enhancer = random.choice(malayalam_enhancers)
-                        return f"{response} {enhancer}!"
-                    else:
-                        return response
+                    if not has_malayalam:
+                        # Add Malayalam flavor
+                        import random
+                        enhancer = random.choice(['da thayoli', 'myre', 'kunne', 'eda poori'])
+                        response = f"{response} {enhancer}!"
+                    
+                    return response
     
     except Exception as e:
         print(f"Model generation failed: {e}")
     
-    # Enhanced Malayalam-only fallback
+    # Enhanced Malayalam-only fallback with more contextual responses
+    import random
+    category = get_response_category(message)
+    
+    # Special handling for questions
+    if '?' in message or message.lower().startswith(('what', 'who', 'where', 'when', 'how', 'why')):
+        contextual_responses = [
+            f"Eda thayoli, '{message}' enna chodhyam clear ayi answer cheyyaan data illa! Google nokku myre!",
+            f"Da kunne, nee chodichath '{message}' alle? Specific ayi chodikkanam! Confusion aanu!",
+            f"Umbikko myre... '{message}' ennu chodichaal njan enthu parayum? Clear ayi chodikku!",
+            f"Kallan myre! '{message}' enna chodhyathinu correct answer Google il ninnu edukkuda!"
+        ]
+        return random.choice(contextual_responses)
+    
+    responses = THANI_RESPONSES.get(category, THANI_RESPONSES["default"])
+    
+    # Add extra Malayalam personality flavoring
+    base_response = random.choice(responses)
+    
+    # Occasionally add extra Malayalam expressions
+    extra_malayalam_expressions = ["naaye", "myre", "thayoli", "kunne", "poori", "kallan"]
+    if random.random() < 0.4:  # 40% chance for more Malayalam flavor
+        extra = random.choice(extra_malayalam_expressions)
+        base_response += f" {extra}!"
+    
+    return base_response
     import random
     category = get_response_category(message)
     responses = THANI_RESPONSES.get(category, THANI_RESPONSES["default"])
