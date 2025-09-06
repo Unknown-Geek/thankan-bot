@@ -184,36 +184,182 @@ def generate_thani_response(message, history):
     """Generate Thani's response using system prompt - ONLY MALAYALAM"""
     try:
         # First check for specific factual questions and provide direct answers with slang
-        message_lower = message.lower()
+        message_lower = message.lower().strip()
+        import random
         
-        # Handle India's capital specifically
-        if any(word in message_lower for word in ['capital', 'capital city']) and 'india' in message_lower:
-            responses = [
-                "Eda thayoli, India nte capital New Delhi aanu! Athum ariyille myre?",
-                "Da kunne, New Delhi aanu India nte capital! Basic knowledge illatha poori!",
-                "New Delhi da thayoli! India nte capital! Ith polum ariyathe?",
-                "Umbikko myre... New Delhi alle India nte capital! School il padichillayo?"
-            ]
-            import random
-            return random.choice(responses)
+        # Comprehensive pattern matching for factual questions
+        # Handle capital questions for different countries/states
+        if any(word in message_lower for word in ['capital', 'capital city']):
+            # India
+            if 'india' in message_lower:
+                responses = [
+                    "Eda thayoli, India nte capital New Delhi aanu! Athum ariyille myre?",
+                    "Da kunne, New Delhi aanu India nte capital! Basic knowledge illatha poori!",
+                    "New Delhi da thayoli! India nte capital! Ith polum ariyathe?",
+                    "Umbikko myre... New Delhi alle India nte capital! School il padichillayo?"
+                ]
+                return random.choice(responses)
+            
+            # USA/America
+            elif any(word in message_lower for word in ['usa', 'america', 'american', 'united states']):
+                responses = [
+                    "Washington DC aanu USA nte capital da thayoli! World geography padichillayo?",
+                    "Eda myre, Washington DC alle America nte capital! Basic world knowledge illayo?",
+                    "Da kunne, Washington DC aanu! USA capital! International general knowledge zero alle?",
+                    "Umbikko poori! Washington DC aanu America nte capital! Basic facts ariyille?"
+                ]
+                return random.choice(responses)
+            
+            # Kerala
+            elif 'kerala' in message_lower:
+                responses = [
+                    "Thiruvananthapuram aanu Kerala nte capital da thayoli! State geography ariyille?",
+                    "Eda myre, Thiruvananthapuram alle Kerala capital! Basic Kerala history padichillayo?",
+                    "Da kunne, Thiruvananthapuram aanu! Kerala nte capital! Athum ariyathe?",
+                    "Umbikko myre! Thiruvananthapuram aanu Kerala capital! State facts ariyille?"
+                ]
+                return random.choice(responses)
+            
+            # Tamil Nadu
+            elif any(word in message_lower for word in ['tamil nadu', 'tamilnadu']):
+                responses = [
+                    "Chennai aanu Tamil Nadu nte capital da thayoli! South India geography ariyille?",
+                    "Eda myre, Chennai alle Tamil Nadu capital! Basic state knowledge illa?"
+                ]
+                return random.choice(responses)
+            
+            # Karnataka
+            elif 'karnataka' in message_lower:
+                responses = [
+                    "Bangalore aanu Karnataka nte capital da kunne! IT capital alle ennu ariyille?",
+                    "Eda thayoli, Bangalore alle Karnataka capital! Bengaluru ennu koodi parayum!"
+                ]
+                return random.choice(responses)
+            
+            # France
+            elif 'france' in message_lower:
+                responses = [
+                    "Paris aanu France nte capital da poori! Europe geography ariyille?",
+                    "Eda thayoli, Paris alle France capital! World map kanunnillayo?",
+                    "Da kunne, Paris aanu! France capital! Eiffel Tower indath evide?"
+                ]
+                return random.choice(responses)
+            
+            # Japan
+            elif 'japan' in message_lower:
+                responses = [
+                    "Tokyo aanu Japan nte capital myre! Asia geography padichillayo?",
+                    "Da kunne, Tokyo alle Japan capital! Basic world knowledge illa?",
+                    "Eda thayoli! Tokyo aanu Japan capital! Anime kanunnond ariyille?"
+                ]
+                return random.choice(responses)
+            
+            # UK/Britain/England
+            elif any(word in message_lower for word in ['uk', 'britain', 'england', 'united kingdom']):
+                responses = [
+                    "London aanu UK nte capital da thayoli! Europe geography padichillayo?",
+                    "Eda myre, London alle Britain capital! Basic world knowledge illa?"
+                ]
+                return random.choice(responses)
+            
+            # China
+            elif 'china' in message_lower:
+                responses = [
+                    "Beijing aanu China nte capital da poori! World geography ariyille?",
+                    "Da kunne, Beijing alle China capital! Asia facts padichillayo?"
+                ]
+                return random.choice(responses)
+            
+            # Generic capital response for unrecognized countries
+            else:
+                responses = [
+                    "Eda thayoli, ethinte capital aanu chodichath? Clear ayi country name parayenda!",
+                    "Da kunne, specific country name parayenda! Confusion aanu!",
+                    "Umbikko myre... which country nte capital? Clear ayi chodikku!"
+                ]
+                return random.choice(responses)
         
-        # Handle other India-related questions
-        if 'india' in message_lower:
-            if any(word in message_lower for word in ['prime minister', 'pm']):
+        # Handle president questions for different countries
+        if 'president' in message_lower:
+            # India
+            if 'india' in message_lower:
+                responses = [
+                    "Droupadi Murmu aanu India nte President, kunne! Civics padikkanda?",
+                    "President Droupadi Murmu aanu da thayoli! General knowledge zero alle?",
+                    "Eda myre, Droupadi Murmu aanu India nte President! Current affairs kanunnillayo?"
+                ]
+                return random.choice(responses)
+            
+            # USA/America
+            elif any(word in message_lower for word in ['usa', 'america', 'american', 'united states']):
+                responses = [
+                    "Joe Biden aanu USA nte President da thayoli! International news kanunnillayo?",
+                    "Eda myre, Joe Biden alle America President! World politics ariyille?",
+                    "Da kunne, Joe Biden aanu! USA President! Current affairs zero alle?",
+                    "Umbikko poori! Joe Biden aanu America nte President! News follow cheyyunnillayo?"
+                ]
+                return random.choice(responses)
+            
+            # Africa (continent clarification)
+            elif 'africa' in message_lower:
+                responses = [
+                    "Eda thayoli, Africa oru continent aanu! Specific country parayenda!",
+                    "Da kunne, Africa il ethra countries undennu ariyille? Which African country?",
+                    "Umbikko myre... Africa continent aanu! South Africa, Nigeria, Egypt - ethaar?",
+                    "Africa il 54 countries und da poori! Ethinte president aanu chodichath?"
+                ]
+                return random.choice(responses)
+            
+            # Generic president response
+            else:
+                responses = [
+                    "Ethinte president aanu chodichath da thayoli? Country name clear ayi parayenda!",
+                    "Da kunne, specific country parayenda! President aarennu ariyaan!"
+                ]
+                return random.choice(responses)
+        
+        # Handle prime minister questions
+        if any(term in message_lower for term in ['prime minister', 'pm']):
+            # India
+            if 'india' in message_lower:
+                responses = [
+                    "Narendra Modi aanu India nte Prime Minister, myre! News polum kanunnille?",
+                    "Modi da thayoli! PM! Basic current affairs ariyille poori?",
+                    "Eda kunde, Narendra Modi alle PM? News kanunnillayo?",
+                    "Umbikko myre! Narendra Modi aanu India nte PM! Politics follow cheyyunnillayo?"
+                ]
+                return random.choice(responses)
+            
+            # UK/Britain
+            elif any(word in message_lower for word in ['uk', 'britain', 'england', 'united kingdom']):
+                responses = [
+                    "Rishi Sunak aanu UK Prime Minister da thayoli! International news follow cheyyunnillayo?",
+                    "Eda myre, Rishi Sunak alle UK PM! World politics ariyille?"
+                ]
+                return random.choice(responses)
+            
+            # Generic PM response
+            else:
+                responses = [
+                    "Ethinte PM aanu chodichath da kunne? Country name parayenda!",
+                    "Da thayoli, specific country parayenda! PM aarennu ariyaan!"
+                ]
+                return random.choice(responses)
+        
+        # Handle prime minister questions
+        if any(term in message_lower for term in ['prime minister', 'pm']):
+            if 'india' in message_lower:
                 responses = [
                     "Narendra Modi aanu India nte Prime Minister, myre! News polum kanunnille?",
                     "Modi da thayoli! PM! Basic current affairs ariyille poori?",
                     "Eda kunde, Narendra Modi alle PM? News kanunnillayo?"
                 ]
-                import random
                 return random.choice(responses)
-            elif any(word in message_lower for word in ['president']):
+            elif any(country in message_lower for country in ['uk', 'britain', 'england']):
                 responses = [
-                    "Droupadi Murmu aanu President, kunne! Civics padikkanda?",
-                    "President Droupadi Murmu aanu da thayoli! General knowledge zero alle?",
-                    "Eda myre, Droupadi Murmu aanu India nte President!"
+                    "Rishi Sunak aanu UK Prime Minister da thayoli! International news follow cheyyunnillayo?",
+                    "Eda myre, Rishi Sunak alle UK PM! World politics ariyille?"
                 ]
-                import random
                 return random.choice(responses)
         
         # Handle basic math questions
@@ -230,20 +376,28 @@ def generate_thani_response(message, history):
                             f"Da kunne, {numbers[0]} + {numbers[1]} ennal {result} aanu! Calculator vendathe simple sum!",
                             f"Umbikko myre... {numbers[0]} + {numbers[1]} = {result}! Math padichillayo?"
                         ]
-                        import random
+                        return random.choice(responses)
+                    elif '-' in message or 'minus' in message_lower:
+                        result = int(numbers[0]) - int(numbers[1])
+                        responses = [
+                            f"Da thayoli, {numbers[0]} - {numbers[1]} = {result} aanu! Basic subtraction ariyille?",
+                            f"Eda myre, {numbers[0]} - {numbers[1]} = {result}! Simple math polum illa?"
+                        ]
                         return random.choice(responses)
             except:
                 pass
         
         # Handle what/who questions about science, geography etc.
         if message_lower.startswith(('what is', 'who is', 'where is', 'when is', 'how is')):
-            # Try to answer common questions
+            # Common knowledge questions
             if 'sun' in message_lower:
                 return "Eda thayoli, Suryan oru star aanu! Basic science ariyille myre?"
             elif 'moon' in message_lower:
                 return "Chandran Earth nte satellite aanu da kunne! Geography padichillayo?"
             elif 'water' in message_lower and 'boiling' in message_lower:
                 return "100 degree Celsius il vellam boil aavum da poori! Physics class bunking cheythayo?"
+            elif 'gravity' in message_lower:
+                return "Gravity 9.8 m/s² aanu da thayoli! Physics padichillayo?"
         
         tokenizer, model = load_model()
         
