@@ -462,86 +462,134 @@ def generate_thani_response(message, history):
             # SCIENCE QUESTIONS
             if 'sun' in message_lower:
                 responses = [
-                    "Eda thayoli, Suryan oru star aanu! Nuclear fusion nadakkunnath! Basic astronomy ariyille myre?",
-                    "Da kunne, Sun oru massive star aanu! Hydrogen helium aaki convert cheyyunnu! Science padichillayo?",
-                    "Umbikko poori! Suryan solar system inte center aanu! 150 million km distance! Physics ariyille?"
+                    "Eda thayoli, Suryan oru massive star aanu! Nuclear fusion nadakkunnath! 150 million km door! Astronomy padichillayo myre?",
+                    "Da kunne, Sun nte core temperature 15 million°C aanu! Hydrogen helium aayi convert aavunnu! Space science ariyathe?",
+                    "Umbikko poori! Suryan solar system inte heart aanu! 4.6 billion years old! Ethra vayassu aayi jeevikunnu! Basic physics ariyille?",
+                    "Eda kallan! Sun oronnu second il 600 million tons hydrogen burn cheyyunnu! Energy factory aanu! Science wonder ariyathe?",
+                    "Myre thayoli! Suryan nte light Earth il ethaan 8 minutes 20 seconds edukkum! Speed of light 3×10⁸ m/s! Physics calculation cheyyaan ariyille?"
                 ]
                 return random.choice(responses)
                 
             elif 'moon' in message_lower:
                 responses = [
-                    "Chandran Earth nte satellite aanu da thayoli! 384,400 km distance! Geography padichillayo?",
-                    "Eda myre, Moon oru natural satellite aanu! Tidal effects create cheyyunnu! Basic science ariyille?",
-                    "Da kunne, Chandran 27.3 days il Earth ne orbit cheyyum! Lunar cycles ariyathe?"
+                    "Chandran Earth nte single satellite aanu da thayoli! 384,400 km distance! Tidal effects create cheyyunnu! Astronomy basic ariyille?",
+                    "Eda myre, Moon 27.3 days il Earth ne orbit cheyyum! Synchronous rotation! Same face always visible! Space mechanics padichillayo?",
+                    "Da kunne, Chandran nte gravity Earth gravity nte 1/6 aanu! Neil Armstrong 1969 il land cheythu! Apollo 11 ariyathe?",
+                    "Umbikko poori! Moon formation Giant Impact theory! 4.5 billion years munne oru Mars-size object Earth il idichath! Cosmic history ariyille?",
+                    "Kallan myre! Full moon, new moon, waxing, waning phases! Lunar calendar follow cheyyunnavar und! Traditional knowledge polum illa?"
                 ]
                 return random.choice(responses)
                 
             elif any(word in message_lower for word in ['water', 'h2o']) and 'boiling' in message_lower:
                 responses = [
-                    "100 degree Celsius il vellam boil aavum da poori! Sea level pressure il! Physics class bunking cheythayo?",
-                    "Eda thayoli, 373 Kelvin il water vaporize aavum! Thermodynamics ariyille myre?",
-                    "Da kunne, atmospheric pressure 1 atm il water boiling point 100°C aanu! Chemistry padichillayo?"
+                    "100 degree Celsius il vellam boil aavum da poori! Sea level pressure il! Mount Everest il 72°C il boil aavum! Altitude effect ariyille?",
+                    "Eda thayoli, 373.15 Kelvin il H2O phase change liquid to gas! Latent heat of vaporization 2260 kJ/kg! Thermodynamics genius aano?",
+                    "Da kunne, atmospheric pressure 101.325 kPa il boiling point 100°C! Pressure cooker il 120°C ethum! Kitchen science ariyathe?",
+                    "Umbikko myre! Water nte triple point 0.01°C, 611.657 Pa! Solid, liquid, gas ellaam simultaneously exist cheyyum! Phase diagram padichillayo?",
+                    "Kallan thayoli! Dead Sea il higher boiling point, higher salt content! Impurities effect ariyille? Basic chemistry polum illa?"
                 ]
                 return random.choice(responses)
                 
             elif 'gravity' in message_lower:
                 responses = [
-                    "Gravity 9.8 m/s² aanu da thayoli! Earth surface il! Newton inte law ariyille?",
-                    "Eda myre, gravitational acceleration 9.8 meters per second squared! Physics basic aanu!",
-                    "Da kunne, g = 9.8 m/s² aanu! Apple thalayl veezhunnath Newton kandu! Science history ariyathe?"
+                    "Gravity 9.8 m/s² aanu da thayoli! Earth surface il! Moon il 1.6 m/s², Mars il 3.7 m/s²! Planetary comparison ariyille?",
+                    "Eda myre, Newton nte Universal Law of Gravitation F=Gm₁m₂/r²! G=6.67×10⁻¹¹ Nm²/kg²! Physics constant polum ariyathe?",
+                    "Da kunne, Einstein relativity theory! Gravity space-time curvature aanu! Black holes il infinite gravity! Modern physics padichillayo?",
+                    "Umbikko poori! Free fall acceleration same aanu all objects nu! Feather and hammer Moon il same time fall cheyyum! Galileo experiment ariyille?",
+                    "Kallan myre! Tidal forces, escape velocity, orbital mechanics ellaam gravity effect! Space missions calculate cheyyaan vendath! Engineering ariyathe?"
                 ]
                 return random.choice(responses)
                 
             elif any(word in message_lower for word in ['dna', 'chromosome']):
                 responses = [
-                    "DNA deoxyribonucleic acid aanu da poori! Genetic information store cheyyunnu! Biology ariyille?",
-                    "Eda thayoli, DNA double helix structure aanu! Watson-Crick model! Molecular biology padichillayo?"
+                    "DNA deoxyribonucleic acid aanu da poori! Double helix structure! A-T, G-C base pairs! Watson-Crick-Franklin discovery! Molecular biology ariyille?",
+                    "Eda thayoli, 23 pairs chromosomes humans il! 46 total! XX female, XY male! Gender determination mechanism ariyathe?",
+                    "Da kunne, DNA replication semi-conservative! Polymerase enzyme use cheyyum! Cell division time exact copy undaakkum! Genetics padichillayo?",
+                    "Umbikko myre! Human genome 3.2 billion base pairs! 99.9% similarity between all humans! ACTG sequence variations! Bioinformatics ariyille?",
+                    "Kallan thayoli! DNA fingerprinting, PCR amplification, CRISPR gene editing! Modern biotechnology revolution! Science advances follow cheyyunnillayo?"
                 ]
                 return random.choice(responses)
                 
             elif 'photosynthesis' in message_lower:
                 responses = [
-                    "6CO2 + 6H2O + light energy → C6H12O6 + 6O2 da myre! Chlorophyll use cheyyunnu! Botany ariyille?",
-                    "Eda thayoli, plants sunlight use cheythu glucose undakkunnu! Oxygen release cheyyum! Biology basic aanu!"
+                    "6CO2 + 6H2O + light energy → C6H12O6 + 6O2 da myre! Chlorophyll magic! Light-dependent & independent reactions! Botany ariyille?",
+                    "Eda thayoli, photosystem I & II il electron transport! ATP, NADPH production! Calvin cycle il carbon fixation! Plant biochemistry genius aano?",
+                    "Da kunne, plants oronnu year il 100+ billion tons oxygen release cheyyum! Atmospheric O2 photosynthesis contribution! Ecology ariyathe?",
+                    "Umbikko poori! C3, C4, CAM plants different photosynthesis pathways! Rice C3, sugarcane C4, pineapple CAM! Agricultural science padichillayo?",
+                    "Kallan myre! Chloroplast il thylakoids, stroma! Chlorophyll-a, chlorophyll-b, carotenoids! Light absorption spectrum! Plant physiology ariyille?"
                 ]
                 return random.choice(responses)
             
             # GEOGRAPHY QUESTIONS  
             elif any(word in message_lower for word in ['highest mountain', 'tallest mountain', 'everest']):
                 responses = [
-                    "Mount Everest 8,848 meters height aanu da thayoli! Nepal-Tibet border il! Geography padichillayo?",
-                    "Eda myre, Sagarmatha/Chomolungma 29,029 feet aanu! Himalayas il! World records ariyille?",
-                    "Da kunne, Everest world nte highest peak aanu! Climbing death zone und! Adventure ariyathe?"
+                    "Mount Everest 8,848.86 meters height aanu da thayoli! Nepal il Sagarmatha, Tibet il Chomolungma! Death zone 8000m+ il! Mountaineering ariyille?",
+                    "Eda myre, Everest growing aanu year il 4mm! Tectonic plates collision! Indian plate Eurasian plate il push cheyyunnu! Geology padichillayo?",
+                    "Da kunne, Everest summit il atmospheric pressure sea level nte 1/3 aanu! Oxygen mask mandatory! Extreme altitude physiology ariyathe?",
+                    "Umbikko poori! 1953 il Edmund Hillary, Tenzing Norgay first summit! 600+ successful climbers! Commercialization problems und! Adventure history ariyille?",
+                    "Kallan thayoli! K2 'Savage Mountain' more dangerous than Everest! Annapurna highest fatality rate! Which peak climb cheyyaan courage undo?"
                 ]
                 return random.choice(responses)
                 
             elif any(word in message_lower for word in ['longest river', 'nile', 'amazon']):
                 responses = [
-                    "Nile River longest aanu da poori! 6,650 km length! Africa il! Geography basic ariyille?",
-                    "Eda thayoli, Amazon volume wise largest aanu but Nile length wise! River systems padichillayo?"
+                    "Nile River 6,650 km longest aanu da poori! Amazon 6,400 km second! Blue Nile, White Nile confluence Sudan il! River geography ariyille?",
+                    "Eda thayoli, Amazon volume wise largest! 209,000 m³/s discharge rate! Atlantic Ocean il freshwater 100 miles extend aavum! Hydrology genius aano?",
+                    "Da kunne, Nile Egypt civilization create cheythu! Annual flooding Aswan High Dam control cheyyunnu! River valley civilizations ariyathe?",
+                    "Umbikko myre! Amazon rainforest 'Lungs of Earth'! 20% world oxygen production! Deforestation alarming rate il! Environmental science padichillayo?",
+                    "Kallan poori! Ganges India nte sacred river! Yamuna, Brahmaputra major tributaries! River pollution serious issue! Water management ariyille?"
                 ]
                 return random.choice(responses)
                 
             elif any(word in message_lower for word in ['largest ocean', 'pacific']):
                 responses = [
-                    "Pacific Ocean largest aanu da myre! 165 million sq km area! World map kanunnillayo?",
-                    "Eda thayoli, Pacific total Earth surface inte 1/3 cover cheyyunnu! Oceanography ariyille?"
+                    "Pacific Ocean largest aanu da myre! 165.2 million km² area! Atlantic, Indian, Arctic, Southern oceans smaller! Oceanography ariyille?",
+                    "Eda thayoli, Pacific 'Ring of Fire' volcanic activity! Mariana Trench deepest point 11,034m! Challenger Deep! Marine geology padichillayo?",
+                    "Da kunne, Pacific tsunami 2004, 2011 devastating! Tectonic activity submarine earthquakes! Disaster management ariyathe?",
+                    "Umbikko poori! Pacific garbage patch plastic pollution! Ocean currents waste accumulation! Marine ecosystem destruction! Environmental awareness undo?",
+                    "Kallan myre! Pacific trade routes shipping lanes! Container ships, oil tankers! Global economy 70% ocean transport dependent! Maritime commerce ariyille?"
                 ]
                 return random.choice(responses)
             
             # HISTORY QUESTIONS
             elif any(word in message_lower for word in ['independence', '1947', 'freedom']) and 'india' in message_lower:
                 responses = [
-                    "August 15, 1947 il India independence kitti da thayoli! British rule kazhinja divasam! History padichillayo?",
-                    "Eda myre, 1947 August 15 aanu India independence day! Gandhi, Nehru efforts! Freedom struggle ariyille?",
-                    "Da kunne, 200+ years British rule kazhinja happy day! Tricolor flag hoist cheythu! Patriotism undo?"
+                    "August 15, 1947 il India independence kitti da thayoli! 200 years British rule! Gandhi satyagraha, Quit India movement! Freedom struggle ariyille?",
+                    "Eda myre, Partition koodi undayi! Pakistan, Bangladesh separate! 14 million people displaced! Communal riots! History tragedy padichillayo?",
+                    "Da kunne, Nehru 'Tryst with Destiny' speech! Red Fort il first PM! Mountbatten last Viceroy! Political transition ariyathe?",
+                    "Umbikko poori! Subhash Chandra Bose Azad Hind Fauj! Revolutionary methods! Gandhi-Bose ideology differences! Freedom fighters sacrifice respect undo?",
+                    "Kallan thayoli! 1857 First War of Independence! Rani Lakshmibai, Tatya Tope! British East India Company rule! Colonial history padichillayo?"
                 ]
                 return random.choice(responses)
                 
             elif any(word in message_lower for word in ['world war', 'ww2', 'hitler']):
                 responses = [
-                    "World War 2 - 1939 to 1945 da poori! Hitler, Nazi Germany! 70+ million people died! History basic ariyille?",
-                    "Eda thayoli, WW2 human history ile deadliest conflict! Holocaust, atomic bombs! War crimes padichillayo?"
+                    "World War 2: 1939-1945 da poori! Hitler Nazi Germany! Holocaust 6 million Jews! Axis vs Allies! 70-85 million deaths! History darkness ariyille?",
+                    "Eda thayoli, Pearl Harbor attack 1941! USA entry war il! Hiroshima, Nagasaki atomic bombs! Nuclear age beginning! War technology evolution padichillayo?",
+                    "Da kunne, D-Day Normandy landings! Operation Overlord! Allied forces Europe liberation! Military strategy ariyathe?",
+                    "Umbikko myre! Stalingrad battle turning point! Soviet Union resistance! Eastern front casualties massive! Geopolitical consequences understand cheyyunnillayo?",
+                    "Kallan poori! UN formation 1945! Security Council permanent members! International relations post-war! Diplomatic history ariyille?"
+                ]
+                return random.choice(responses)
+            
+            # POLITICS/GOVERNMENT QUESTIONS
+            elif any(word in message_lower for word in ['prime minister', 'pm india', 'modi']):
+                responses = [
+                    "Narendra Modi current PM aanu da thayoli! 2014 muthal continuous! BJP, RSS background! Gujarat CM 2001-2014! Political dominance ariyille?",
+                    "Eda myre, Modi Lok Sabha majority 2014, 2019! Digital India, Make in India initiatives! Economic policies debate cheyyaano?",
+                    "Da kunne, Modi ji social media master! Twitter followers millions! Political communication revolution! Technology use padichillayo?",
+                    "Umbikko poori! Demonetization 2016, GST implementation! Economic reforms controversial! Fiscal policy understand cheyyunnillayo?",
+                    "Kallan thayoli! CAA, Article 370 major decisions! Constitutional amendments! Parliamentary democracy complexities ariyille?"
+                ]
+                return random.choice(responses)
+                
+            elif any(word in message_lower for word in ['president india', 'rashtrapati']):
+                responses = [
+                    "Droupadi Murmu current President aanu da poori! First tribal woman! Constitutional head! Ceremonial powers major! Civics padichillayo?",
+                    "Eda thayoli, President Parliament, State Assemblies elect cheyyunnu! Electoral college system! Indirect election process ariyille?",
+                    "Da kunne, President Commander-in-Chief of Armed Forces! Supreme Court appointments! Executive powers limited but significant! Constitution ariyathe?",
+                    "Umbikko myre! Previous presidents Abdul Kalam popular aayirunnu! People's President nickname! Leadership qualities inspire cheyyunnillayo?",
+                    "Kallan poori! Rashtrapati Bhavan world's largest residential palace! 340 rooms! Colonial architecture heritage! History appreciate cheyyunnillayo?"
                 ]
                 return random.choice(responses)
             
@@ -557,45 +605,63 @@ def generate_thani_response(message, history):
             # TECHNOLOGY QUESTIONS
             elif any(word in message_lower for word in ['internet', 'www', 'web']):
                 responses = [
-                    "Internet 1960s il ARPANET aayi start aai da poori! Tim Berners-Lee WWW create cheythu! Tech history ariyille?",
-                    "Eda thayoli, World Wide Web 1989 il invent aai! HTTP, HTML protocols! Computer science padichillayo?"
+                    "Internet 1960s il ARPANET aayi start aai da poori! Tim Berners-Lee WWW create cheythu 1989! TCP/IP protocol suite! Tech history ariyille?",
+                    "Eda thayoli, World Wide Web HTTP, HTML, URL protocols! Hypertext linking system revolutionary! Computer science padichillayo?",
+                    "Da kunne, Internet packet switching, routing algorithms! Global network infrastructure! Billions connected devices! Digital revolution ariyathe?",
+                    "Umbikko myre! Fiber optic cables, satellites, wireless networks! Internet backbone infrastructure! Network engineering understand cheyyunnillayo?",
+                    "Kallan poori! Web 1.0, 2.0, 3.0 evolution! Static to interactive to decentralized! Technology progression ariyille?"
                 ]
                 return random.choice(responses)
                 
             elif any(word in message_lower for word in ['computer', 'first computer']):
                 responses = [
-                    "ENIAC first general-purpose computer da myre! 1946 il! Turing, Von Neumann contributions! CS history ariyille?",
-                    "Eda thayoli, electronic computers 1940s il start! Vacuum tubes, transistors evolution! Technology padichillayo?"
+                    "ENIAC first general-purpose computer da myre! 1946 il 30 tons weight! Vacuum tubes 17,468! Computer evolution ariyille?",
+                    "Eda thayoli, Charles Babbage Analytical Engine concept! Ada Lovelace first programmer! Computing history padichillayo?",
+                    "Da kunne, Transistor invention 1947! Moore's Law chip density doubling! Silicon Valley revolution ariyathe?",
+                    "Umbikko poori! Personal computers 1970s! Apple II, IBM PC mass market! Home computing breakthrough! Technology adoption understand cheyyunnillayo?",
+                    "Kallan thayoli! Quantum computers, AI chips, neuromorphic computing! Future technology trends follow cheyyunnillayo?"
                 ]
                 return random.choice(responses)
             
             # SPACE/ASTRONOMY QUESTIONS
             elif any(word in message_lower for word in ['first man', 'moon landing', 'neil armstrong']):
                 responses = [
-                    "Neil Armstrong first man on moon da kunne! July 20, 1969! Apollo 11 mission! Space history ariyille?",
-                    "Eda thayoli, 'One small step for man' famous quote! Buzz Aldrin koodi und! NASA achievements padichillayo?"
+                    "Neil Armstrong first man on moon da kunne! July 20, 1969 Apollo 11! 'One small step' historic moment! Space exploration ariyille?",
+                    "Eda thayoli, Buzz Aldrin second person! Michael Collins command module pilot! Team effort NASA! Space program history padichillayo?",
+                    "Da myre, 384,400 km travel cheythu! Saturn V rocket 36 story building height! Engineering marvel ariyathe?",
+                    "Umbikko poori! Moon samples 382 kg Earth il kondu vannu! Lunar geology analysis! Scientific research value understand cheyyunnillayo?",
+                    "Kallan thayoli! Conspiracy theories flat earth believers! Evidence overwhelming! Science literacy crisis ariyille?"
                 ]
                 return random.choice(responses)
                 
             elif any(word in message_lower for word in ['solar system', 'planets']):
                 responses = [
-                    "8 planets und solar system il da poori! Mercury to Neptune! Pluto dwarf planet aayi! Astronomy ariyille?",
-                    "Eda myre, Sun, Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune! Order ariyathe?"
+                    "8 planets und solar system il da poori! Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune! Pluto 2006 il demoted! Astronomy ariyille?",
+                    "Eda myre, Jupiter largest planet! Gas giant! 95 times Earth mass! Galilean moons Io, Europa, Ganymede, Callisto! Planetary science padichillayo?",
+                    "Da kunne, Venus hottest planet! 462°C greenhouse effect! Retrograde rotation! Atmospheric science ariyathe?",
+                    "Umbikko thayoli! Mars exploration rovers Curiosity, Perseverance! Searching for life signs! Terraforming possibility research! Space colonization ariyille?",
+                    "Kallan poori! Exoplanets 5000+ discovered! Kepler telescope, James Webb! Habitable zone planets! Astrobiology exciting field! Universe mysteries ariyille?"
                 ]
                 return random.choice(responses)
             
             # BIOLOGY QUESTIONS
             elif any(word in message_lower for word in ['human body', 'bones', 'skeleton']):
                 responses = [
-                    "206 bones und human body il da thayoli! Calcium phosphate! Anatomy basic ariyille?",
-                    "Eda myre, largest bone femur, smallest stapes! Skeletal system padichillayo?"
+                    "206 bones und adult human body il da thayoli! Birth time 270, fusion il 206 aavum! Calcium phosphate matrix! Anatomy basic ariyille?",
+                    "Eda myre, femur largest strongest bone! Stapes ear bone smallest! Bone density peak 30 age! Osteoporosis prevention important! Health science padichillayo?",
+                    "Da kunne, bone marrow red, yellow types! Hematopoiesis blood cell production! Stem cell niche! Physiology ariyathe?",
+                    "Umbikko poori! Compact bone, spongy bone structure! Osteoblasts, osteoclasts remodeling! Mechanical stress adaptation! Biomechanics understand cheyyunnillayo?",
+                    "Kallan thayoli! Fracture healing phases inflammatory, reparative, remodeling! Medical biology complex process! Healthcare knowledge ariyille?"
                 ]
                 return random.choice(responses)
                 
             elif any(word in message_lower for word in ['blood', 'circulation']):
                 responses = [
-                    "Heart 4 chambers und da kunne! Aorta, ventricles, atria! Cardiovascular system ariyille?",
-                    "Eda poori, red blood cells oxygen carry cheyyunnu! Hemoglobin protein! Biology padichillayo?"
+                    "Heart 4 chambers und da kunne! Left, right atria, ventricles! Systemic, pulmonary circulation! Cardiovascular system complex! Medical science ariyille?",
+                    "Eda poori, red blood cells 4.5-5.5 million/μL! Hemoglobin oxygen transport! Iron deficiency anemia common! Hematology padichillayo?",
+                    "Da myre, blood pressure systolic/diastolic! 120/80 mmHg normal! Hypertension silent killer! Prevention lifestyle changes! Health awareness ariyathe?",
+                    "Umbikko thayoli! Platelets clotting mechanism! Fibrin mesh formation! Coagulation cascade complex! Bleeding disorders serious! Medical emergency understand cheyyunnillayo?",
+                    "Kallan poori! ABO blood groups genetics! Rh factor compatibility! Blood donation saves lives! Social responsibility ariyille?"
                 ]
                 return random.choice(responses)
             
@@ -610,31 +676,53 @@ def generate_thani_response(message, history):
             # SPORTS QUESTIONS
             elif any(word in message_lower for word in ['cricket', 'world cup']) and any(word in message_lower for word in ['winner', 'champion']):
                 responses = [
-                    "India 1983, 2011 il Cricket World Cup winner da kunne! Kapil Dev, Dhoni captains! Sports history ariyille?",
-                    "Eda thayoli, Australia maximum World Cups jetichu! 5 times! Cricket statistics padichillayo?"
+                    "ODI Cricket World Cup 2023 Australia won da thayoli! India final il odi! Home advantage waste! Cricket obsession failure ariyille?",
+                    "Eda myre, IPL most valuable cricket league! ₹75,000 crore brand value! T20 format entertainment! Money game aayo cricket?",
+                    "Da kunne, Kohli, Rohit, Dhoni legends! But World Cup trophy 2011 muthal illa! Team India choking habit! Pressure handling padichillayo?",
+                    "Umbikko poori! Kapil Dev 1983 World Cup hero! 1983 movie inspiration! Cricket revolution India il! Sports history ariyathe?",
+                    "Kallan thayoli! IPL auction player trading! Franchise business model! Cricket entertainment industry! Sports economics understand cheyyunnillayo?"
                 ]
                 return random.choice(responses)
                 
             elif any(word in message_lower for word in ['football', 'fifa']):
                 responses = [
-                    "Brazil 5 times FIFA World Cup winner da poori! Pele, Ronaldinho legends! Football ariyille?",
-                    "Eda myre, FIFA World Cup 4 years koottam nadakkum! Qatar 2022 il Argentina winner! Sports follow cheyyunnillayo?"
+                    "Qatar 2022 FIFA World Cup Argentina won da thayoli! Messi finally World Cup! 32 teams, 64 matches! Football passion ariyille?",
+                    "Eda myre, Messi Golden Ball award! Mbappé hat-trick final il! 4-2 penalties! Greatest final ever! Emotional moments ariyille?",
+                    "Da kunne, Brazil 5 times winner most successful! Germany, Italy, Argentina multiple winners! Football powerhouses padichillayo?",
+                    "Umbikko poori! 2026 World Cup USA, Canada, Mexico host! 48 teams expansion! Global tournament bigger aavum! FIFA politics ariyathe?",
+                    "Kallan thayoli! India FIFA ranking 100+ pathetic! ISL, I-League domestic leagues! Football development grassroot level weak! Sports infrastructure ariyille?"
+                ]
+                return random.choice(responses)
+            
+            elif any(word in message_lower for word in ['olympics', 'olympic games']):
+                responses = [
+                    "Tokyo 2020 Olympics 2021 il conduct cheythu da myre! COVID delay! Neeraj Chopra gold javelin il! Historic achievement ariyille?",
+                    "Eda thayoli, Summer, Winter Olympics alternate! Paris 2024 recent! LA 2028 next! Olympic flame tradition beautiful! Sports spirit padichillayo?",
+                    "Da kunne, India medals count improving slowly! PV Sindhu, Saina badminton! Boxing, wrestling medals regular! Athlete support system ariyathe?",
+                    "Umbikko poori! Olympic motto 'Citius, Altius, Fortius'! Faster, Higher, Stronger! Pierre de Coubertin modern Olympics founder! History inspiration undo?",
+                    "Kallan myre! China, USA medal race intense! Russia doping scandal! Fair play vs politics! International sports complexities ariyille?"
                 ]
                 return random.choice(responses)
             
             # ECONOMICS/BUSINESS QUESTIONS
             elif any(word in message_lower for word in ['richest person', 'billionaire']):
                 responses = [
-                    "Elon Musk/Jeff Bezos richest people da thayoli! Tesla, Amazon, SpaceX! Business news ariyille?",
-                    "Eda kunne, wealth fluctuate cheyyum stock market based! Forbes list kanunnillayo?"
+                    "Elon Musk richest person da thayoli! $200+ billion net worth! Tesla, SpaceX, X ownership! Tech empire ariyille?",
+                    "Eda myre, Jeff Bezos Amazon founder! Blue Origin space venture! E-commerce revolution! Business model padichillayo?",
+                    "Da kunne, Bernard Arnault LVMH luxury goods! French billionaire! Fashion industry empire! Luxury market ariyathe?",
+                    "Umbikko poori! Bill Gates Microsoft, philanthropy! Warren Buffett value investing! Business legends respect undo?",
+                    "Kallan thayoli! Wealth inequality massive issue! Top 1% vs bottom 50%! Economic disparity social problems! Capitalism critique ariyille?"
                 ]
                 return random.choice(responses)
             
             # CURRENT AFFAIRS QUESTIONS  
             elif any(word in message_lower for word in ['covid', 'pandemic', 'coronavirus']):
                 responses = [
-                    "COVID-19 pandemic 2020 il start aai da myre! SARS-CoV-2 virus! Global lockdowns! Current affairs ariyille?",
-                    "Eda poori, WHO pandemic declare cheythu March 2020! Vaccines develop aai! Health news follow cheyyunnillayo?"
+                    "COVID-19 pandemic 2020 il start aai da myre! SARS-CoV-2 virus Wuhan muthal! 6.9 million deaths globally! Health crisis ariyille?",
+                    "Eda poori, WHO pandemic declare cheythu March 11, 2020! Global lockdowns, economic recession! Crisis management padichillayo?",
+                    "Da kunne, mRNA vaccines Pfizer, Moderna breakthrough! 70% world population vaccinated! Medical technology miracle ariyathe?",
+                    "Umbikko thayoli! Delta, Omicron variants mutations! Virus evolution natural selection! Epidemiology understand cheyyunnillayo?",
+                    "Kallan myre! Work from home revolution! Digital transformation acceleration! Supply chain disruptions! Pandemic effects permanent changes ariyille?"
                 ]
                 return random.choice(responses)
         
