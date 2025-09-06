@@ -72,14 +72,16 @@ def test_single_question():
                 else:
                     print(f"   ❌ No Malayalam slang detected")
                 
-                # Check for correct answer
-                if "new delhi" in bot_lower or "delhi" in bot_lower:
-                    print(f"   ✅ Correct capital mentioned: New Delhi")
+                # Check for correct answer based on the question
+                if "pinarayi vijayan" in bot_lower or "pinarayi" in bot_lower:
+                    print(f"   ✅ Correct Chief Minister mentioned: Pinarayi Vijayan")
+                    correct_answer = True
                 else:
-                    print(f"   ❌ Capital not mentioned or incorrect")
+                    print(f"   ❌ Chief Minister not mentioned or incorrect")
+                    correct_answer = False
                 
                 # Overall assessment
-                if found_malayalam and ("new delhi" in bot_lower or "delhi" in bot_lower):
+                if found_malayalam and correct_answer:
                     print(f"\n🎉 PERFECT! Bot is working correctly:")
                     print(f"   - Answers factual questions ✅")
                     print(f"   - Uses Malayalam slang ✅") 
