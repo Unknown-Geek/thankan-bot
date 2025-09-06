@@ -38,7 +38,7 @@ def test_single_question():
         client = Client("Mojo-Maniac/thankan")
         
         # Test the specific question that wasn't working before
-        test_message = "USA nte capital city etha kunne"
+        test_message = "china nte capital city etha kunne"
         
         print(f"\n📤 Sending: '{test_message}'")
         print("⏳ Waiting for response...")
